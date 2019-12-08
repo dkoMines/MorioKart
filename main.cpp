@@ -37,6 +37,7 @@
 #include <vector>
 #include <queue>
 #include <math.h>       /* sin */
+#include <algorithm>
 
 #include "Enemy.h"
 #include "Enemy.cpp"
@@ -72,9 +73,9 @@ glm::vec3 lightPos = {0.0,10.0,0.0};
 
 
 // Platform
-const GLfloat GROUND_SIZE = 20;
+const GLfloat GROUND_SIZE = 3;
 GLuint platformVAOd;
-GLuint platformTextureHandle;
+GLuint platformTextureHandle, finishTextureHandle;
 CSCI441::ShaderProgram* floorShaderProgram = NULL;
 struct TextureShaderUniformLocations {
     GLint modelMtx;
@@ -86,15 +87,20 @@ struct TextureShaderAttributeLocations {
     GLint vPos;
     GLint vTextureCoord;
 } textureShaderAttributes;
-// + More our own platform variables
+
+// + More our own platform variables THE ROAD
 vector<glm::vec3> platform_layout;
 int platformNum;
+vector<char> roadChars = {'x','S'};
+vector<int> finishIndex;
 
 
 // MyKart
 glm::vec3 myKartPosition = glm::vec3(0,1.5,0);
 bool alive = true;
 MyKart* myKart;
+
+
 
 
 
@@ -460,11 +466,12 @@ void setupBuffersSky(){
     glVertexAttribPointer( skybox_tloc, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
     // ==================================================================== Ground =================================================================
+    platformNum = platform_layout.size();
     const int NUM_PLATFORMS = platformNum;
 
-    platform_layout.push_back(glm::vec3(2,0,0));
-    platform_layout.push_back(glm::vec3(0,0,0));
-    platform_layout.push_back(glm::vec3(0,-1,2));
+//    platform_layout.push_back(glm::vec3(2,0,0));
+//    platform_layout.push_back(glm::vec3(0,0,0));
+//    platform_layout.push_back(glm::vec3(0,-1,2));
 
     float vertScale = 5.0;
 
@@ -518,6 +525,7 @@ void setupBuffersSky(){
 
 void setupTextures() {
     platformTextureHandle = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/metal.jpg" );
+    finishTextureHandle = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/Finish-Line.jpg" );
 
     skyboxTextureHandles[0] = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/skybox/negy.jpg" );
     skyboxTextureHandles[1] = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/skybox/posy.jpg" );
@@ -578,9 +586,15 @@ void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
     glUniform1ui(textureShaderUniforms.tex, GL_TEXTURE0);
     glUniform4fv(textureShaderUniforms.color, 1, &white[0]);
 
-    glBindTexture( GL_TEXTURE_2D, platformTextureHandle );
+
     glBindVertexArray( platformVAOd );
     for (int i=0;i<platformNum*12+1;i+=12){
+
+        glBindTexture( GL_TEXTURE_2D, platformTextureHandle );
+        if (find(finishIndex.begin(), finishIndex.end(), i/12) != finishIndex.end()) {
+            glBindTexture(GL_TEXTURE_2D, finishTextureHandle);
+        }
+
         glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (void*)i );
 
     }
@@ -610,15 +624,31 @@ int main( int argc, char *argv[] ) {
         exit(1);
     }
     else {
-        int x = 0;
+        int count = 0;
+        int z = -20;
         string line;
         // Create Map
         while (getline (control, line)){
+            int x = -20;
             for (auto c : line){
-
+                x += 2;
+                if ( find(roadChars.begin(), roadChars.end(), c) != roadChars.end() ){ // Build normal road
+                    platform_layout.push_back(glm::vec3(x,0,z));
+                    count ++;
+                }
+                if (c == 'S'){ // Starting Position
+                    myKartPosition = glm::vec3(x*GROUND_SIZE, 1.0, z*GROUND_SIZE);
+                }
+                if (c=='O'){ // Finish Line
+                    platform_layout.push_back(glm::vec3(x,0,z));
+                    finishIndex.push_back(count);
+                    count++;
+                }
             }
+            z+=2;
         }
     }
+
 
 
   // GLFW sets up our OpenGL context so must be done first
