@@ -31,7 +31,7 @@
 #include <CSCI441/OpenGLUtils3.hpp> // to print info about OpenGL
 #include <CSCI441/ShaderProgram3.hpp>   // our shader helper functions
 #include <CSCI441/TextureUtils.hpp>   // our texture helper functions
-#include <Shader_Utils.h>
+#include "Shader_Utils.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -44,6 +44,8 @@
 
 #include "MyKart.h"
 #include "MyKart.cpp"
+#include "Penguin.h"
+#include "Penguin.cpp"
 
 
 //*************************************************************************************
@@ -101,7 +103,9 @@ bool alive = true;
 MyKart* myKart;
 
 
-
+//Penguin
+glm::vec3 penguinPosition = glm::vec3(10, 1.5, 10);
+Penguin* penguin;
 
 
 
@@ -163,7 +167,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         break;
     }
   }
-  if ((action == GLFW_PRESS or action == GLFW_REPEAT) && alive){
+  if ((action == GLFW_PRESS || action == GLFW_REPEAT) && alive){
       float moveSpeed = 0.5;
       switch( key ) {
           case GLFW_KEY_D: // x down
@@ -548,6 +552,7 @@ void setupTextures() {
 ////////////////////////////////////////////////////////////////////////////////
 void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
     myKart->location = myKartPosition;
+    penguin->location = penguinPosition;
 
     // Skybox
     // stores our model matrix
@@ -570,6 +575,7 @@ void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
     }
 
     myKart->renderModel(viewMtx,projMtx,eyePoint);
+    penguin->renderModel(viewMtx, projMtx, eyePoint);
 
 
 
@@ -663,6 +669,8 @@ int main( int argc, char *argv[] ) {
 
     // Generate any models that start in the game here
     myKart = new MyKart(myKartPosition);
+    penguin = new Penguin(penguinPosition);
+
 
 
   // needed to connect our 3D Object Library to our shader
