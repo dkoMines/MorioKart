@@ -49,7 +49,7 @@
 //
 // Global Parameters
 int windowWidth, windowHeight;
-
+string controlFileName = "ControlFile.txt";
 bool controlDown = false;
 bool leftMouseDown = false;
 glm::vec2 mousePosition( -9999.0f, -9999.0f );
@@ -87,8 +87,8 @@ struct TextureShaderAttributeLocations {
     GLint vTextureCoord;
 } textureShaderAttributes;
 // + More our own platform variables
-const int NUM_PLATFORMS = 3;
 vector<glm::vec3> platform_layout;
+int platformNum;
 
 
 // MyKart
@@ -460,9 +460,11 @@ void setupBuffersSky(){
     glVertexAttribPointer( skybox_tloc, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
     // ==================================================================== Ground =================================================================
+    const int NUM_PLATFORMS = platformNum;
+
     platform_layout.push_back(glm::vec3(2,0,0));
     platform_layout.push_back(glm::vec3(0,0,0));
-    platform_layout.push_back(glm::vec3(0,0,2));
+    platform_layout.push_back(glm::vec3(0,-1,2));
 
     float vertScale = 5.0;
 
@@ -578,7 +580,7 @@ void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
 
     glBindTexture( GL_TEXTURE_2D, platformTextureHandle );
     glBindVertexArray( platformVAOd );
-    for (int i=0;i<NUM_PLATFORMS*12+1;i+=12){
+    for (int i=0;i<platformNum*12+1;i+=12){
         glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (void*)i );
 
     }
@@ -600,6 +602,23 @@ void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
 ////////////////////////////////////////////////////////////////////////////////
 int main( int argc, char *argv[] ) {
 	srand( time(0) );									// seed our RNG
+
+    // Read in our control file
+    ifstream control(controlFileName);
+    if (!control){
+        cout << "Control File Does not exist";
+        exit(1);
+    }
+    else {
+        int x = 0;
+        string line;
+        // Create Map
+        while (getline (control, line)){
+            for (auto c : line){
+
+            }
+        }
+    }
 
 
   // GLFW sets up our OpenGL context so must be done first
