@@ -2,7 +2,7 @@
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
-uniform sampler2D textur;
+// uniform sampler2D textur;
 
 in vec3 theColor;
 in vec3 normalX;
