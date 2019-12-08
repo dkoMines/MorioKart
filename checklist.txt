@@ -1,0 +1,8 @@
+Mark things as done as we complete them
+
+1) At least 2 different cameras
+2) Some form of hierarchical modeling
+3) At least two different texture applications in a meaningful way
+4) At least 2 different lights
+5) At least two shader programs
+6) Easter Egg
