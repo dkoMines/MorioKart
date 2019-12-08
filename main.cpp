@@ -41,6 +41,9 @@
 #include "Enemy.h"
 #include "Enemy.cpp"
 
+#include "MyKart.h"
+#include "MyKart.cpp"
+
 
 //*************************************************************************************
 //
@@ -83,10 +86,15 @@ struct TextureShaderAttributeLocations {
     GLint vPos;
     GLint vTextureCoord;
 } textureShaderAttributes;
+// + More our own platform variables
+const int NUM_PLATFORMS = 3;
+vector<glm::vec3> platform_layout;
+
 
 // MyKart
-glm::vec3 myKartPosition = glm::vec3(0,0,0);
+glm::vec3 myKartPosition = glm::vec3(0,1.5,0);
 bool alive = true;
+MyKart* myKart;
 
 
 
@@ -381,7 +389,7 @@ void setupBuffersSky(){
     Vertex skyPoints[8];
     // SKYBOX BUFFERS
     // Sides for my cube
-    float scale = 42.0;
+    float scale = 200.0;
     float yLow = -1*scale;
     float yHigh = scale;
     float xLow = -1*scale;
@@ -450,44 +458,13 @@ void setupBuffersSky(){
     glBufferData(GL_ARRAY_BUFFER, sizeof(texCoordsOrdered),texCoordsOrdered, GL_STATIC_DRAW);
     glEnableVertexAttribArray( skybox_tloc );
     glVertexAttribPointer( skybox_tloc, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-//
-//    // ============================================= Model time =================================
-//    model = new CSCI441::ModelLoader();
-//    model->loadModelFile( objFileLocation );
-//
-//    // Load Normals
-//    ifstream modelFile;
-//    modelFile.open(objFileLocation);
-//    vector<glm::vec3> allNormals;
-//    while(!modelFile.eof()){
-//        string word;
-//        modelFile >> word;
-//        if (word=="vn"){
-//            glm::vec3 normal;
-//            float piece;
-//            modelFile >> piece;
-//            normal.x = piece;
-//            modelFile >> piece;
-//            normal.y = piece;
-//            modelFile >> piece;
-//            normal.z = piece;
-//            allNormals.push_back(normal);
-//        }
-//    }
-//    // Shift to an array
-//    glm::vec3 normalArray[allNormals.size()];
-//    for (int i=0;i<allNormals.size();i++){
-//        normalArray[i] = allNormals[i];
-//    }
-//    // Generate Normals VBO
-//    glGenBuffers( 1, &normalsVBO);
-//    glBindBuffer( GL_ARRAY_BUFFER, normalsVBO);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(normalArray),normalArray, GL_STATIC_DRAW);
-//    glEnableVertexAttribArray( norm_attrib_location );
-//    glVertexAttribPointer( norm_attrib_location, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
+    // ==================================================================== Ground =================================================================
+    platform_layout.push_back(glm::vec3(2,0,0));
+    platform_layout.push_back(glm::vec3(0,0,0));
+    platform_layout.push_back(glm::vec3(0,0,2));
 
-    // Ground
+    float vertScale = 5.0;
 
     struct VertexTextured {
         float x, y, z;
@@ -496,14 +473,26 @@ void setupBuffersSky(){
 
     GLfloat platformSize = GROUND_SIZE;
 
-    VertexTextured platformVertices[4] = {
-            { -platformSize, 0.0f, -platformSize,   0.0f,  0.0f }, // 0 - BL
-            {  platformSize, 0.0f, -platformSize,   1.0f,  0.0f }, // 1 - BR
-            { -platformSize, 0.0f,  platformSize,   0.0f,  1.0f }, // 2 - TL
-            {  platformSize, 0.0f,  platformSize,   1.0f,  1.0f }  // 3 - TR
-    };
+    VertexTextured platformVertices[NUM_PLATFORMS*4];
+    unsigned short platformIndices[NUM_PLATFORMS*6];
 
-    unsigned short platformIndices[4] = { 0, 1, 2, 3 };
+    for (int i=0;i<NUM_PLATFORMS;i++){
+        glm::vec3 this_layout = platform_layout[i];
+
+
+        platformVertices[i*4] = { -platformSize + platformSize*this_layout.x, 0.0f + vertScale*this_layout.y, -platformSize + platformSize*this_layout.z,   0.0f,  0.0f }; // 0 - BL
+        platformVertices[i*4+1] ={  platformSize + platformSize*this_layout.x, 0.0f + vertScale*this_layout.y, -platformSize + platformSize*this_layout.z,   1.0f,  0.0f }; // 1 - BR
+        platformVertices[i*4+2] ={ -platformSize + platformSize*this_layout.x, 0.0f + vertScale*this_layout.y,  platformSize + platformSize*this_layout.z,   0.0f,  1.0f }; // 2 - TL
+        platformVertices[i*4+3] ={  platformSize + platformSize*this_layout.x, 0.0f + vertScale*this_layout.y,  platformSize + platformSize*this_layout.z,   1.0f,  1.0f };  // 3 - TR
+
+        platformIndices[i*6] = 0+i*4;
+        platformIndices[i*6+1] = 1+i*4;
+        platformIndices[i*6+2] = 2+i*4;
+        platformIndices[i*6+3] = 1+i*4;
+        platformIndices[i*6+4] = 3+i*4;
+        platformIndices[i*6+5] = 2+i*4;
+
+    }
 
     glGenVertexArrays( 1, &platformVAOd );
     glBindVertexArray( platformVAOd );
@@ -548,6 +537,7 @@ void setupTextures() {
 //
 ////////////////////////////////////////////////////////////////////////////////
 void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
+    myKart->location = myKartPosition;
 
     // Skybox
     // stores our model matrix
@@ -569,17 +559,7 @@ void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
         count ++;
     }
 
-//    // HERO
-//    glUseProgram(modelShaderHandle);
-//    glUniformMatrix4fv(model_mvp, 1, GL_FALSE, &mvpMtx[0][0]);
-//    glUniformMatrix4fv(modelMtxLoc, 1, GL_FALSE, &modelMtx[0][0]);
-//    glUniform3fv(lightPosLoc, 1, &lightPos[0]);
-//    glUniform3fv(camPosLoc, 1, &eyePoint[0]);
-//    glUniform3fv(change_uniform_location, 1, &myKartPosition[0]);
-//    glUniform1f(timeLoc, animateTime);
-//    if (heroMovement()){
-////        model->draw( vpos_model );
-//    }
+    myKart->renderModel(viewMtx,projMtx,eyePoint);
 
 
 
@@ -598,7 +578,10 @@ void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
 
     glBindTexture( GL_TEXTURE_2D, platformTextureHandle );
     glBindVertexArray( platformVAOd );
-    glDrawElements( GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, (void*)0 );
+    for (int i=0;i<NUM_PLATFORMS*12+1;i+=12){
+        glDrawElements( GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (void*)i );
+
+    }
 
 
 
@@ -630,7 +613,7 @@ int main( int argc, char *argv[] ) {
 	setupTextures();									// load all our textures into memory
 
     // Generate any models that start in the game here
-
+    myKart = new MyKart(myKartPosition);
 
 
   // needed to connect our 3D Object Library to our shader
@@ -656,7 +639,7 @@ int main( int argc, char *argv[] ) {
 		// set the projection matrix based on the window size
 		// use a perspective projection that ranges
 		// with a FOV of 45 degrees, for our current aspect ratio, and Z ranges from [0.001, 1000].
-		glm::mat4 projectionMatrix = glm::perspective( 45.0f, windowWidth / (float) windowHeight, 0.001f, 100.0f );
+		glm::mat4 projectionMatrix = glm::perspective( 45.0f, windowWidth / (float) windowHeight, 0.001f, 1000.0f );
 
 		// set up our look at matrix to position our camera
 		glm::mat4 viewMatrix = glm::lookAt( eyePoint,myKartPosition, upVector );

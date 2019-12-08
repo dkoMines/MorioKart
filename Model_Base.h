@@ -46,16 +46,8 @@ public:
         return rz;
     }
 
-    // Variables
-    glm::vec3 location;
-    glm::vec3 direction;
 
 private:
-    CSCI441::ModelLoader* this_model = NULL;
-    GLuint this_ShaderHandle = 0;
-    const char* modelFileName;
-
-
 
 };
 
