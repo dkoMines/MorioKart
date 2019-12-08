@@ -39,7 +39,9 @@ private:
 
     // Model / Buffers
     const char* model_file_name = "models/Kart.obj";
+    const char* text_file_name = "textures/crashcar.png";
     CSCI441::ModelLoader* this_model = NULL;
+    CSCI441::ShaderProgram* this_shader_program = NULL;
     GLuint thisNormalVBOs;
     float modelScale = 0.1;
 
@@ -53,6 +55,9 @@ private:
     GLint this_timeLoc = -1;
     GLuint this_change_uniform_location;
     GLint this_norm_attrib_location;
+    GLint this_texel_attrib_location;
+    GLint this_texture_uniform_location;
+    GLint this_texture_uniform_handle;
     GLint this_vpos_model;
     GLint this_scale_loc;
 

@@ -3,13 +3,13 @@
 // TODO #B
 in vec3 vPosition;
 in vec3 normal;
-// in vec2 texel;
+in vec2 texel;
 
 // TODO #F1
 out vec3 theColor;
 out vec3 FragPos;
 out vec3 normalX;
-// out vec3 texel;
+out vec3 tex;
 
 // TODO #A
 uniform mat4 mvpMatrix;
