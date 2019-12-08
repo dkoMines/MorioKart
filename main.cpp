@@ -67,6 +67,7 @@ struct Vertex { GLfloat x, y, z; };
 GLuint skyboxVAO, skyboxVBO, skyboxTexVBO;
 GLuint skyboxTextureHandles[6];
 GLuint skyboxShaderProgramHandle = 0;
+CSCI441::ShaderProgram* skyBoxShaderProgram = NULL;
 GLint mvp_uniform_location, skybox_vpos, skybox_tloc;
 
 glm::vec3 lightPos = {0.0,10.0,0.0};
@@ -368,9 +369,10 @@ void setupGLEW() {
 void setupShaders() {
 	// Skybox set up
     skyboxShaderProgramHandle = createShaderProgram("shaders/skyboxShader.v.glsl","shaders/skyboxShader.f.glsl");
-    mvp_uniform_location = glGetUniformLocation(skyboxShaderProgramHandle, "mvpMatrix");
-    skybox_vpos = glGetAttribLocation(skyboxShaderProgramHandle, "vPosition");
-    skybox_tloc = glGetAttribLocation(skyboxShaderProgramHandle,"texCoordIn");
+    skyBoxShaderProgram = new CSCI441::ShaderProgram("shaders/skyboxShader.v.glsl","shaders/skyboxShader.f.glsl");
+    mvp_uniform_location = skyBoxShaderProgram->getUniformLocation("mvpMatrix");
+    skybox_vpos = skyBoxShaderProgram->getAttributeLocation("vPosition");
+    skybox_tloc = skyBoxShaderProgram->getAttributeLocation("texCoordIn");
 
 
     // Ground //
@@ -554,7 +556,8 @@ void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
     glm::mat4 modelMtx = glm::mat4(1.0f);
     // use our shader program
     // TODO #9A
-    glUseProgram(skyboxShaderProgramHandle);
+    skyBoxShaderProgram->useProgram();
+//    glUseProgram(skyboxShaderProgramHandle);
     // precompute our MVP CPU side so it only needs to be computed once
     glm::mat4 mvpMtx = projMtx * viewMtx * modelMtx;;
     // send MVP to GPU
