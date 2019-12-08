@@ -7,9 +7,9 @@ in vec2 texel;
 
 // TODO #F1
 out vec3 theColor;
-out vec3 FragPos;
+out vec3 fragPos;
 out vec3 normalX;
-out vec3 tex;
+out vec2 tex;
 
 // TODO #A
 uniform mat4 mvpMatrix;
@@ -42,6 +42,6 @@ void main() {
 
     normalX = mat3(transpose(inverse(modelMatrix))) * normal;
 
-    FragPos = vec3(modelMatrix * vec4(vPosition, 1.0));
+    fragPos = vec3(modelMatrix * vec4(vPosition, 1.0));
 
 }

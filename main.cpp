@@ -104,6 +104,7 @@ bool alive = true;
 MyKart* myKart;
 
 
+<<<<<<< HEAD
 //Penguin
 glm::vec3 penguinPosition = glm::vec3(10, 1.5, 10);
 Penguin* penguin;
@@ -113,6 +114,8 @@ Penguin* penguin;
 
 
 
+=======
+>>>>>>> 53019ff8d06c3fc4a3d898e2dc7965a0947d24eb
 //******************************************************************************
 //
 // Helper Functions
@@ -168,22 +171,43 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         break;
     }
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 53019ff8d06c3fc4a3d898e2dc7965a0947d24eb
   if ((action == GLFW_PRESS || action == GLFW_REPEAT) && alive){
       float moveSpeed = 0.5;
-      switch( key ) {
-          case GLFW_KEY_D: // x down
-              myKartPosition.x -= moveSpeed;
-              break;
-          case GLFW_KEY_A: // x up
-              myKartPosition.x += moveSpeed;
-              break;
-          case GLFW_KEY_S: // z down
-              myKartPosition.z -= moveSpeed;
-              break;
-          case GLFW_KEY_W: // z up
-              myKartPosition.z += moveSpeed;
-              break;
+      if (key == GLFW_KEY_D){
+          myKart->right();
       }
+      if (key == GLFW_KEY_A){
+          myKart->left();
+      }
+      if (key == GLFW_KEY_W){
+          myKart->accelUp();
+      }
+      if (key == GLFW_KEY_S){
+          myKart->accelDown();
+      }
+//      switch( key ) {
+//          case GLFW_KEY_D: // x down
+////              myKartPosition.x -= moveSpeed;
+//              myKart->right();
+//              break;
+//          case GLFW_KEY_A: // x up
+////              myKartPosition.x += moveSpeed;
+//              myKart->left();
+//              break;
+//          case GLFW_KEY_S: // z down
+////              myKartPosition.z -= moveSpeed;
+//              myKart->accelDown();
+//              break;
+//          case GLFW_KEY_W: // z up
+////              myKartPosition.z += moveSpeed;
+//              myKart->accelUp();
+//              break;
+//      }
+      myKartPosition = myKart->location;
       convertSphericalToCartesian();
   }
 }
@@ -553,8 +577,12 @@ void setupTextures() {
 //
 ////////////////////////////////////////////////////////////////////////////////
 void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
+<<<<<<< HEAD
     myKart->location = myKartPosition;
     penguin->location = penguinPosition;
+=======
+    myKartPosition = myKart->location;
+>>>>>>> 53019ff8d06c3fc4a3d898e2dc7965a0947d24eb
 
     // Skybox
     // stores our model matrix
