@@ -1,19 +1,12 @@
-//
-// Created by dko on 12/7/2019.
-//
-
-#ifndef A7_MYKART_H
-#define A7_MYKART_H
-
+#pragma once
 #include "Model_Base.h"
 
-class MyKart : public Model_Base{
+class Penguin : public Model_Base{
 public:
     // Constructor
-    MyKart(glm::vec3 startingLocation):location(startingLocation){
+    Penguin(glm::vec3 startingLocation):location(startingLocation){
         setupShader();
         setupBuffers();
-        theta = (float) M_PI;
     }
 
     // Functions
@@ -22,42 +15,25 @@ public:
     void updatePosition();
     void renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoint);
 
-    void left();
-    void right();
-    void accelUp();
-    void accelDown();
-    void noAccel();
-    void rotate(float rotate);
-
-
     // Public variables
     glm::vec3 location;
-    glm::vec3 direction = glm::vec3(0,0,-1);
-    float speed = 0.0;
+    glm::vec3 direction = glm::vec3(1,0,0);
 
 private:
-
-    int maxSpeed = 3.0;
-
     // World Info
     float groundSize;
     float heroSize;
     float animateTime = 0;
-    glm::vec3 lightPos = glm::vec3(10,10,10);
+    glm::vec3 lightPos = glm::vec3(0,10,0);
     bool animateDir;
+    // Enemy Info
 
-    float theta;
-
-
-    float rotationTick = 0.1;
     bool alive = true;
 
 
     // Model / Buffers
-    const char* model_file_name = "models/Kart.obj";
-    const char* text_file_name = "textures/crashcar.png";
+    const char* model_file_name = "models/Penguin.obj";
     CSCI441::ModelLoader* this_model = NULL;
-    CSCI441::ShaderProgram* this_shader_program = NULL;
     GLuint thisNormalVBOs;
     float modelScale = 0.1;
 
@@ -71,10 +47,6 @@ private:
     GLint this_timeLoc = -1;
     GLuint this_change_uniform_location;
     GLint this_norm_attrib_location;
-    GLint this_texel_attrib_location;
-    GLint this_texture_uniform_location;
-    GLint this_texture_uniform_handle;
-    GLint this_viewMtxLoc;
     GLint this_vpos_model;
     GLint this_scale_loc;
 
@@ -83,6 +55,3 @@ private:
 
 
 };
-
-
-#endif //A7_MYKART_H

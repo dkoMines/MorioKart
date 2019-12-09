@@ -31,7 +31,7 @@
 #include <CSCI441/OpenGLUtils3.hpp> // to print info about OpenGL
 #include <CSCI441/ShaderProgram3.hpp>   // our shader helper functions
 #include <CSCI441/TextureUtils.hpp>   // our texture helper functions
-#include <Shader_Utils.h>
+#include "Shader_Utils.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -44,6 +44,8 @@
 
 #include "MyKart.h"
 #include "MyKart.cpp"
+#include "Penguin.h"
+#include "Penguin.cpp"
 
 
 //*************************************************************************************
@@ -101,6 +103,9 @@ glm::vec3 myKartPosition = glm::vec3(0,1.5,0);
 bool alive = true;
 MyKart* myKart;
 
+//Penguin
+glm::vec3 penguinPosition = glm::vec3(10, 1.5, 10);
+Penguin* penguin;
 
 //******************************************************************************
 //
@@ -157,42 +162,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         break;
     }
   }
-
-//  if ((action == GLFW_PRESS || action == GLFW_REPEAT) && alive){
-//      float moveSpeed = 0.5;
-//      if (key == GLFW_KEY_D){
-//          myKart->right();
-//      }
-//      if (key == GLFW_KEY_A){
-//          myKart->left();
-//      }
-////      if (key == GLFW_KEY_W){
-////          myKart->accelUp();
-////      }
-//      if (key == GLFW_KEY_S){
-//          myKart->accelDown();
-//      }
-////      switch( key ) {
-////          case GLFW_KEY_D: // x down
-//////              myKartPosition.x -= moveSpeed;
-////              myKart->right();
-////              break;
-////          case GLFW_KEY_A: // x up
-//////              myKartPosition.x += moveSpeed;
-////              myKart->left();
-////              break;
-////          case GLFW_KEY_S: // z down
-//////              myKartPosition.z -= moveSpeed;
-////              myKart->accelDown();
-////              break;
-////          case GLFW_KEY_W: // z up
-//////              myKartPosition.z += moveSpeed;
-////              myKart->accelUp();
-////              break;
-////      }
-//      myKartPosition = myKart->location;
-//      convertSphericalToCartesian();
-//  }
 }
 
 // mouse_button_callback() /////////////////////////////////////////////////////
@@ -560,6 +529,7 @@ void setupTextures() {
 //
 ////////////////////////////////////////////////////////////////////////////////
 void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
+    penguin->location = penguinPosition;
     myKartPosition = myKart->location;
 
     // Skybox
@@ -584,6 +554,7 @@ void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
     }
 
     myKart->renderModel(viewMtx,projMtx,eyePoint);
+    penguin->renderModel(viewMtx, projMtx, eyePoint);
 
 
 
@@ -678,6 +649,8 @@ int main( int argc, char *argv[] ) {
 
     // Generate any models that start in the game here
     myKart = new MyKart(myKartPosition);
+    penguin = new Penguin(penguinPosition);
+
 
 
   // needed to connect our 3D Object Library to our shader
