@@ -31,6 +31,7 @@
 #include <CSCI441/OpenGLUtils3.hpp> // to print info about OpenGL
 #include <CSCI441/ShaderProgram3.hpp>   // our shader helper functions
 #include <CSCI441/TextureUtils.hpp>   // our texture helper functions
+#include <CSCI441/FramebufferUtils3.hpp> // Frame buffer helper functions
 #include "Shader_Utils.h"
 #include <iostream>
 #include <fstream>
@@ -52,7 +53,7 @@
 //
 // Global Parameters
 int windowWidth, windowHeight;
-string controlFileName = "ControlFile.txt";
+string controlFileName = "ControlFileXL.txt";
 bool controlDown = false;
 bool kartCamera = true;
 bool leftMouseDown = false;
@@ -64,6 +65,7 @@ glm::vec3 lookAtPoint( 0.0f,  0.0f,  0.0f );
 glm::vec3 upVector(    0.0f,  1.0f,  0.0f );
 
 GLint vpos_attrib_location;
+bool fpvViewport = true;
 struct Vertex { GLfloat x, y, z; };
 
 // Skybox
@@ -74,6 +76,8 @@ CSCI441::ShaderProgram* skyBoxShaderProgram = NULL;
 GLint mvp_uniform_location, skybox_vpos, skybox_tloc;
 
 glm::vec3 lightPos = {0.0,10.0,0.0};
+
+glm::vec3 camCenter;
 
 
 // Platform
@@ -92,8 +96,32 @@ struct TextureShaderAttributeLocations {
     GLint vTextureCoord;
 } textureShaderAttributes;
 
+//Framebuffer
+GLuint fbo;
+int framebufferWidth = 1024, framebufferHeight = 1024;
+GLuint framebufferTextureHandle;
+
+CSCI441::ShaderProgram *miniShader = NULL;
+struct MiniShaderUniformLocs {
+    GLint projectionMtx;
+    GLint fbo;
+} miniShaderUniforms;
+struct PostShaderAttributeLocs {
+    GLint vPos;
+    GLint vTexCoord;
+} miniShaderAttributes;
+
+struct VertexTextured {
+    float x, y, z;
+    float s, t;
+};
+
+GLuint texturedQuadVAO;
+
+
 // + More our own platform variables THE ROAD
 vector<glm::vec3> platform_layout;
+vector<glm::vec4> platform_Nums;
 int platformNum;
 vector<char> roadChars = {'x','S','1','2','3','4','5','6','7','8','9'};
 vector<int> finishIndex;
@@ -383,6 +411,70 @@ void setupShaders() {
     textureShaderAttributes.vTextureCoord   = floorShaderProgram->getAttributeLocation( "vTextureCoord" );
     // Objective
 
+
+    // Mini map
+    miniShader = new CSCI441::ShaderProgram("shaders/grayscale.v.glsl", "shaders/grayscale.f.glsl");
+    miniShaderUniforms.projectionMtx = miniShader->getUniformLocation("projectionMtx");
+    miniShaderUniforms.fbo = miniShader->getUniformLocation("fbo");
+    miniShaderAttributes.vPos = miniShader->getAttributeLocation("vPos");
+    miniShaderAttributes.vTexCoord = miniShader->getAttributeLocation("vTexCoord");
+}
+
+
+
+void setupBuffersMini(){
+
+
+    VertexTextured texturedQuadVerts[4] = {
+            {-1.0f, -1.0f, 0.0f, 0.0f, 0.0f}, // 0 - BL
+            {1.0f,  -1.0f, 0.0f, 1.0f, 0.0f}, // 1 - BR
+            {-1.0f, 1.0f,  0.0f, 0.0f, 1.0f}, // 2 - TL
+            {1.0f,  1.0f,  0.0f, 1.0f, 1.0f}  // 3 - TR
+    };
+
+    unsigned short texturedQuadIndices[4] = {0, 1, 2, 3};
+
+    GLuint vbods[2];
+
+    glGenVertexArrays(1, &texturedQuadVAO);
+    glBindVertexArray(texturedQuadVAO);
+    glGenBuffers(2, vbods);
+    glBindBuffer(GL_ARRAY_BUFFER, vbods[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(texturedQuadVerts), texturedQuadVerts, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbods[1]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(texturedQuadIndices), texturedQuadIndices, GL_STATIC_DRAW);
+    miniShader->useProgram();
+    glEnableVertexAttribArray(miniShaderAttributes.vPos);
+    glVertexAttribPointer(miniShaderAttributes.vPos, 3, GL_FLOAT, GL_FALSE, sizeof(VertexTextured), (void *) 0);
+    glEnableVertexAttribArray(miniShaderAttributes.vTexCoord);
+    glVertexAttribPointer(miniShaderAttributes.vTexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(VertexTextured),
+                          (void *) (sizeof(float) * 3));
+}
+
+void setupFramebuffer() {
+    // TODO #1 - Setup everything with the framebuffer
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    GLuint rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, framebufferWidth, framebufferHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    glGenTextures(1, &framebufferTextureHandle);
+    glBindTexture(GL_TEXTURE_2D, framebufferTextureHandle);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, framebufferWidth, framebufferHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebufferTextureHandle, 0);
+
+    CSCI441::FramebufferUtils::printFramebufferStatusMessage(GL_FRAMEBUFFER);
+    CSCI441::FramebufferUtils::printFramebufferInfo(GL_FRAMEBUFFER, fbo);
+
+
 }
 
 // particleBuffers() //////////////////////////////////////////////////////////////
@@ -519,6 +611,8 @@ void setupBuffersSky(){
 
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vbods[1] );
     glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( platformIndices ), platformIndices, GL_STATIC_DRAW );
+
+    setupBuffersMini();
 }
 
 
@@ -645,11 +739,21 @@ int main( int argc, char *argv[] ) {
                     platform_layout.push_back(glm::vec3(x,0,z));
                     finishIndex.push_back(count);
                     count++;
+                    platform_Nums.push_back(glm::vec4(x,0,z,0));
+                }
+                if (c=='1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9') {
+                    int num = (int)c - 48;
+                    platform_Nums.push_back(glm::vec4(x,0,z,num));
+                }
+                if (c=='C'){
+                    camCenter = glm::vec3(GROUND_SIZE*x, 0.0f,GROUND_SIZE*z);
                 }
             }
             z+=2;
         }
     }
+
+
 
 
 
@@ -663,10 +767,45 @@ int main( int argc, char *argv[] ) {
 	setupShaders(); 									// load our shader program into memory
     setupBuffersSky();
 	setupTextures();									// load all our textures into memory
+    setupFramebuffer();
 
     // Generate any models that start in the game here
-    myKart = new MyKart(myKartPosition, platform_layout, GROUND_SIZE);
+    myKart = new MyKart(myKartPosition, platform_layout, GROUND_SIZE, platform_Nums);
     penguin = new Penguin(penguinPosition);
+
+//    GLint framebufferWidth, framebufferHeight;
+//    glfwGetFramebufferSize( window, &framebufferWidth, &framebufferHeight );
+
+//    if(fpvViewport)
+//    {
+//        glEnable(GL_SCISSOR_TEST);
+//        glScissor(0, 0, framebufferWidth / 3, framebufferHeight / 3);
+//        glClear(GL_DEPTH_BUFFER_BIT);
+//        glClear(GL_COLOR_BUFFER_BIT);
+//        glDisable(GL_SCISSOR_TEST);
+//
+//        glm::mat4 ortho_p = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f);
+//
+//        // update the first person POV viewport - tell OpenGL we want to render a portion of the window
+//        glViewport(0, 0, framebufferWidth / 3, framebufferHeight / 3);
+//
+////        glMatrixMode(GL_MODELVIEW);    // make the ModelView matrix current to be modified by any transformations
+////        glLoadIdentity();                            // set the matrix to be the identity
+//
+//        // set up our look at matrix to position our camera (first person)
+//        viewMtx = glm::lookAt(
+//                glm::vec3(heroVec[fpvIndex]->pos.x + (2 * heroVec[fpvIndex]->dir.x),
+//                          heroVec[fpvIndex]->pos.y + (2 * heroVec[fpvIndex]->dir.y), heroVec[fpvIndex]->pos.z + (2 *
+//                                                                                                                 heroVec[fpvIndex]->dir.z)),        // camera is located at current hero's position offset to be in front of rendered part
+//                glm::vec3(heroVec[fpvIndex]->pos.x + (3 * heroVec[fpvIndex]->dir.x),
+//                          heroVec[fpvIndex]->pos.y + (3 * heroVec[fpvIndex]->dir.y), heroVec[fpvIndex]->pos.z + (3 *
+//                                                                                                                 heroVec[fpvIndex]->dir.z)),        // camera is looking at where hero is looking
+//                glm::vec3(0, 1, 0));        // up vector is (0, 1, 0) - positive Y
+//
+//        // multiply by the look at matrix - this is the same as our view matrix
+//        glMultMatrixf(&viewMtx[0][0]);
+////        renderScene();                    // draw everything to the window
+//    }
 
 
 
@@ -679,8 +818,8 @@ int main( int argc, char *argv[] ) {
 	//	until the user decides to close the window and quit the program.  Without a loop, the
 	//	window will display once and then the program exits.
 	while( !glfwWindowShouldClose(window) ) {	// check if the window was instructed to be closed
-    glDrawBuffer( GL_BACK );				// work with our back frame buffer
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );	// clear the current color contents and depth buffer in the window
+//    glDrawBuffer( GL_BACK );				// work with our back frame buffer
+//		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );	// clear the current color contents and depth buffer in the window
 		bool wsKeys = false;
         if (glfwGetKey(window,GLFW_KEY_W)==GLFW_PRESS){
             myKart->accelUp();
@@ -706,19 +845,60 @@ int main( int argc, char *argv[] ) {
 		// query what the actual size of the window we are rendering to is.
 		glfwGetFramebufferSize( window, &windowWidth, &windowHeight );
 
+        /////////////////////////////
+        // FIRST PASS
+        /////////////////////////////
+        // TODO #2
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+        glViewport(0, 0, framebufferWidth, framebufferHeight);
+        glClear(GL_COLOR_BUFFER_BIT |
+                GL_DEPTH_BUFFER_BIT);    // clear the current color contents and depth buffer in the framebuffer
+
+        // set the projection matrix based on the window size
+        // use a perspective projection that ranges
+        // with a FOV of 45 degrees, for our current aspect ratio, and Z ranges from [0.001, 1000].
+        glm::mat4 projectionMatrix = glm::perspective( 45.0f, windowWidth / (float) windowHeight, 0.001f, 1000.0f );
+        projectionMatrix = glm::ortho(-150.0f,150.0f,-150.0f,150.0f,0.1f, 1000.0f);
+
+        // set up our look at matrix to position our camera
+        glm::mat4 viewMatrix = glm::lookAt( glm::vec3(60,50,20),glm::vec3(60,0,20), glm::vec3(0,0,1) );
+
+        // pass our view and projection matrices
+        renderScene(viewMatrix, projectionMatrix);
+        glFlush();
+
+        /////////////////////////////
+        // SECOND PASS
+        /////////////////////////////
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        miniShader->useProgram();
+        glViewport(0, 0, windowWidth/3, windowHeight/3);
+        glClear(GL_COLOR_BUFFER_BIT |
+                GL_DEPTH_BUFFER_BIT);
+
+        glm::mat4 ortho_p = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f);
+        glUniformMatrix4fv(miniShaderUniforms.projectionMtx, 1, GL_FALSE, &ortho_p[0][0]);
+//        glUniform1ui(postShaderUniforms.fbo, GL_TEXTURE0);
+        glActiveTexture(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, framebufferTextureHandle);
+        glBindVertexArray(texturedQuadVAO);
+
+        glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, (void *) 0);
 		// update the viewport - tell OpenGL we want to render to the whole window
 		glViewport( 0, 0, windowWidth, windowHeight );
 
 		// set the projection matrix based on the window size
 		// use a perspective projection that ranges
 		// with a FOV of 45 degrees, for our current aspect ratio, and Z ranges from [0.001, 1000].
-		glm::mat4 projectionMatrix = glm::perspective( 45.0f, windowWidth / (float) windowHeight, 0.001f, 1000.0f );
-
-		// set up our look at matrix to position our camera
-		glm::mat4 viewMatrix = glm::lookAt( eyePoint,glm::vec3(myKartPosition.x,myKartPosition.y+2.0,myKartPosition.z), upVector );
-
-		// draw everything to the window
-		// pass our view and projection matrices as well as deltaTime between frames
+		projectionMatrix = glm::perspective( 45.0f, windowWidth / (float) windowHeight, 0.001f, 1000.0f );
+//
+//		// set up our look at matrix to position our camera
+		viewMatrix = glm::lookAt( eyePoint,glm::vec3(myKartPosition.x,myKartPosition.y+2.0,myKartPosition.z), upVector );
+//
+//		// draw everything to the window
+//		// pass our view and projection matrices as well as deltaTime between frames
 		renderScene( viewMatrix, projectionMatrix );
 
 		glfwSwapBuffers(window);// flush the OpenGL commands and make sure they get rendered!

@@ -10,10 +10,11 @@
 class MyKart : public Model_Base{
 public:
     // Constructor
-    MyKart(glm::vec3 startingLocation, vector<glm::vec3> platformLayout, int platformSize):location(startingLocation),groundSize(platformSize),platformLayout(platformLayout){
+    MyKart(glm::vec3 startingLocation, vector<glm::vec3> platformLayout, int platformSize, vector<glm::vec4> numLayout):location(startingLocation),groundSize(platformSize),platformLayout(platformLayout),numLayout(numLayout){
         setupShader();
         setupBuffers();
         theta = (float) M_PI;
+        alive = true;
     }
 
     // Functions
@@ -27,9 +28,9 @@ public:
     void accelUp();
     void accelDown();
     void noAccel();
-    void rotate(float rotate);
 
-    bool checkFall();
+    bool checkFall(glm::vec3);
+    int checkNum();
 
 
 
@@ -40,11 +41,23 @@ public:
 
 private:
 
-    int maxSpeed = 1.5;
+    int target = 0;
+
+    float normalY = 0.8;
+
+    glm::vec3 mylastPlatform;
+    glm::vec3 mylastDirection;
+
+    float thetaLR = 0;
+    float fallingCount = 0;
+
+    int maxSpeed = 1.3;
 
     // World Info
     float groundSize;
     vector<glm::vec3> platformLayout;
+    vector<glm::vec4> numLayout;
+
     float heroSize;
     float animateTime = 0;
     glm::vec3 lightPos = glm::vec3(0,15,0);
