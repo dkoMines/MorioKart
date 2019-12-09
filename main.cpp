@@ -523,15 +523,15 @@ void setupBuffersSky(){
 
 
 void setupTextures() {
-    platformTextureHandle = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/metal.jpg" );
+    platformTextureHandle = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/r_road01.png" );
     finishTextureHandle = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/Finish-Line.jpg" );
 
-    skyboxTextureHandles[0] = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/skybox/negy.jpg" );
-    skyboxTextureHandles[1] = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/skybox/posy.jpg" );
-    skyboxTextureHandles[2] = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/skybox/posx.jpg" );
-    skyboxTextureHandles[3] = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/skybox/negx.jpg" );
-    skyboxTextureHandles[4] = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/skybox/posz.jpg" );
-    skyboxTextureHandles[5] = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/skybox/negz.jpg" );
+    skyboxTextureHandles[0] = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/skybox/skybox2/negy.tga" );
+    skyboxTextureHandles[1] = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/skybox/skybox2/posy.tga" );
+    skyboxTextureHandles[2] = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/skybox/skybox2/posx.tga" );
+    skyboxTextureHandles[3] = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/skybox/skybox2/negx.tga" );
+    skyboxTextureHandles[4] = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/skybox/skybox2/posz.tga" );
+    skyboxTextureHandles[5] = CSCI441::TextureUtils::loadAndRegisterTexture( "textures/skybox/skybox2/negz.tga" );
 }
 
 
