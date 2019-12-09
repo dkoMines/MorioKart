@@ -60,7 +60,7 @@ void MyKart::setupBuffers() {
 }
 
 void MyKart::updatePosition() {
-
+    location = location + direction*speed;
 
 
 
@@ -68,13 +68,13 @@ void MyKart::updatePosition() {
 
 void MyKart::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoint) {
 
+
     glm::mat4 oldModelMtx = modelMtx;
 
     glm::vec3 rotationAxis = glm::vec3(0,1,0);
     modelMtx = glm::translate( modelMtx, location );
     // M_PI/2 = +x
     // 0 = +Z
-    float angleOfRotation = acos(glm::dot(glm::vec3(0,0,1),direction));
     modelMtx = glm::rotate( modelMtx, (float)(theta), rotationAxis );
 
 
@@ -109,7 +109,7 @@ void MyKart::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoin
 }
 
 void MyKart::left() {
-    theta += rotationTick;
+    theta += rotationTick*speed;
     glm::vec3 axis = glm::vec3(0,1,0);
     glm::mat4 matrix = glm::rotate(glm::mat4(1.0f),theta,axis);
     glm::vec4 direction_4 = matrix*glm::vec4(0,0,1,1);
@@ -117,7 +117,7 @@ void MyKart::left() {
     direction = glm::normalize(glm::vec3(direction_4.x,0,direction_4.z));
 }
 void MyKart::right() {
-    theta -= rotationTick;
+    theta -= rotationTick*speed;
     glm::vec3 axis = glm::vec3(0,1,0);
     glm::mat4 matrix = glm::rotate(glm::mat4(1.0f),theta,axis);
     glm::vec4 direction_4 = matrix*glm::vec4(0,0,1,1);
@@ -126,8 +126,27 @@ void MyKart::right() {
 }
 
 void MyKart::accelUp() {
-    location = location + direction*speed;
+    if (speed<0.5){
+        speed += 0.03;
+    }
+    speed *= 1.01;
+    if (speed > maxSpeed){speed = maxSpeed;}
 }
 void MyKart::accelDown() {
+    if (speed > 0){
+        speed -= 0.1;
+    } else if (speed < 0){
+        speed -= 0.03;
+        if (speed < -maxSpeed/2){speed = -maxSpeed/2;}
 
+    }
+}
+
+void MyKart::noAccel() {
+    if (speed > 0){
+        speed -= 0.01;
+    }
+    else if (speed < 0){
+        speed += 0.01;
+    }
 }

@@ -158,41 +158,41 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     }
   }
 
-  if ((action == GLFW_PRESS || action == GLFW_REPEAT) && alive){
-      float moveSpeed = 0.5;
-      if (key == GLFW_KEY_D){
-          myKart->right();
-      }
-      if (key == GLFW_KEY_A){
-          myKart->left();
-      }
-      if (key == GLFW_KEY_W){
-          myKart->accelUp();
-      }
-      if (key == GLFW_KEY_S){
-          myKart->accelDown();
-      }
-//      switch( key ) {
-//          case GLFW_KEY_D: // x down
-////              myKartPosition.x -= moveSpeed;
-//              myKart->right();
-//              break;
-//          case GLFW_KEY_A: // x up
-////              myKartPosition.x += moveSpeed;
-//              myKart->left();
-//              break;
-//          case GLFW_KEY_S: // z down
-////              myKartPosition.z -= moveSpeed;
-//              myKart->accelDown();
-//              break;
-//          case GLFW_KEY_W: // z up
-////              myKartPosition.z += moveSpeed;
-//              myKart->accelUp();
-//              break;
+//  if ((action == GLFW_PRESS || action == GLFW_REPEAT) && alive){
+//      float moveSpeed = 0.5;
+//      if (key == GLFW_KEY_D){
+//          myKart->right();
 //      }
-      myKartPosition = myKart->location;
-      convertSphericalToCartesian();
-  }
+//      if (key == GLFW_KEY_A){
+//          myKart->left();
+//      }
+////      if (key == GLFW_KEY_W){
+////          myKart->accelUp();
+////      }
+//      if (key == GLFW_KEY_S){
+//          myKart->accelDown();
+//      }
+////      switch( key ) {
+////          case GLFW_KEY_D: // x down
+//////              myKartPosition.x -= moveSpeed;
+////              myKart->right();
+////              break;
+////          case GLFW_KEY_A: // x up
+//////              myKartPosition.x += moveSpeed;
+////              myKart->left();
+////              break;
+////          case GLFW_KEY_S: // z down
+//////              myKartPosition.z -= moveSpeed;
+////              myKart->accelDown();
+////              break;
+////          case GLFW_KEY_W: // z up
+//////              myKartPosition.z += moveSpeed;
+////              myKart->accelUp();
+////              break;
+////      }
+//      myKartPosition = myKart->location;
+//      convertSphericalToCartesian();
+//  }
 }
 
 // mouse_button_callback() /////////////////////////////////////////////////////
@@ -665,6 +665,7 @@ int main( int argc, char *argv[] ) {
 
 
 
+
   // GLFW sets up our OpenGL context so must be done first
 	GLFWwindow *window = setupGLFW();	// initialize all of the GLFW specific information releated to OpenGL and our window
 	setupOpenGL();										// initialize all of the OpenGL specific information
@@ -690,7 +691,26 @@ int main( int argc, char *argv[] ) {
 	while( !glfwWindowShouldClose(window) ) {	// check if the window was instructed to be closed
     glDrawBuffer( GL_BACK );				// work with our back frame buffer
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );	// clear the current color contents and depth buffer in the window
-
+		bool wsKeys = false;
+        if (glfwGetKey(window,GLFW_KEY_W)==GLFW_PRESS){
+            myKart->accelUp();
+            wsKeys = true;
+        }
+        if (glfwGetKey(window,GLFW_KEY_S)==GLFW_PRESS){
+            myKart->accelDown();
+            wsKeys = true;
+        }
+        if (glfwGetKey(window,GLFW_KEY_A)==GLFW_PRESS){
+            myKart->left();
+        }
+        if (glfwGetKey(window,GLFW_KEY_D)==GLFW_PRESS){
+            myKart->right();
+        }
+        if (!wsKeys){
+            myKart->noAccel();
+        }
+        myKartPosition = myKart->location;
+        convertSphericalToCartesian();
 		// Get the size of our framebuffer.  Ideally this should be the same dimensions as our window, but
 		// when using a Retina display the actual window can be larger than the requested window.  Therefore
 		// query what the actual size of the window we are rendering to is.

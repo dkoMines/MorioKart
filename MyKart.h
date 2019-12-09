@@ -26,15 +26,19 @@ public:
     void right();
     void accelUp();
     void accelDown();
+    void noAccel();
     void rotate(float rotate);
 
 
     // Public variables
     glm::vec3 location;
     glm::vec3 direction = glm::vec3(0,0,-1);
-    float speed = 1.0;
+    float speed = 0.0;
 
 private:
+
+    int maxSpeed = 3.0;
+
     // World Info
     float groundSize;
     float heroSize;
@@ -43,6 +47,7 @@ private:
     bool animateDir;
 
     float theta;
+
 
     float rotationTick = 0.1;
     bool alive = true;
