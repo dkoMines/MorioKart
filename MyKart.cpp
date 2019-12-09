@@ -63,15 +63,27 @@ void MyKart::setupBuffers() {
 
 void MyKart::updatePosition() {
 
-//    glm::vec3 directionNormalized = glm::normalize( direction );
-//    glm::vec3 rotationAxis = glm::vec3(0,1,0);
 
-//    modelMtx = glm::rotate( modelMtx, (float)0.001, rotationAxis );
+
+
 }
 
 void MyKart::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoint) {
+
+    glm::mat4 oldModelMtx = modelMtx;
+
+    glm::vec3 rotationAxis = glm::vec3(0,1,0);
+    modelMtx = glm::translate( modelMtx, location );
+    // M_PI/2 = +x
+    // 0 = +Z
+    float angleOfRotation = acos(glm::dot(glm::vec3(0,0,1),direction));
+    modelMtx = glm::rotate( modelMtx, (float)(theta), rotationAxis );
+
+
+
+    glm::vec3 zero = glm::vec3(0,0,0);
     updatePosition();
-    glm::mat4 mvpMtx = projMtx * viewMtx * modelMtx;;
+    glm::mat4 mvpMtx = projMtx * viewMtx * modelMtx;
     // Set our shader's info
     this_shader_program->useProgram();
 //    glUseProgram(this_ShaderHandle);
@@ -81,7 +93,7 @@ void MyKart::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoin
     glUniform3fv(this_lightPosLoc, 1, &lightPos[0]);
     glUniform3fv(this_camPosLoc, 1, &eyePoint[0]);
     glUniform1f(this_timeLoc, animateTime);
-    glUniform3fv(this_change_uniform_location, 1, &location[0]);
+    glUniform3fv(this_change_uniform_location, 1, &zero[0]);
     glUniform1f(this_scale_loc, modelScale);
 //    glUniform1ui(this_texture_uniform_location, GL_TEXTURE0);
     glBindTexture( GL_TEXTURE_2D, this_texture_uniform_handle );
@@ -95,4 +107,30 @@ void MyKart::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoin
 //    if (animateDir){
 //        animateTime ++;
 //    } else {animateTime--;}
+
+    modelMtx = oldModelMtx;
+}
+
+void MyKart::left() {
+    theta += rotationTick;
+    glm::vec3 axis = glm::vec3(0,1,0);
+    glm::mat4 matrix = glm::rotate(glm::mat4(1.0f),theta,axis);
+    glm::vec4 direction_4 = matrix*glm::vec4(0,0,1,1);
+    direction_4.y = 0;
+    direction = glm::normalize(glm::vec3(direction_4.x,0,direction_4.z));
+}
+void MyKart::right() {
+    theta -= rotationTick;
+    glm::vec3 axis = glm::vec3(0,1,0);
+    glm::mat4 matrix = glm::rotate(glm::mat4(1.0f),theta,axis);
+    glm::vec4 direction_4 = matrix*glm::vec4(0,0,1,1);
+    direction_4.y = 0;
+    direction = glm::normalize(glm::vec3(direction_4.x,0,direction_4.z));
+}
+
+void MyKart::accelUp() {
+    location = location + direction*speed;
+}
+void MyKart::accelDown() {
+
 }

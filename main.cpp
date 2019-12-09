@@ -102,13 +102,6 @@ bool alive = true;
 MyKart* myKart;
 
 
-
-
-
-
-
-
-
 //******************************************************************************
 //
 // Helper Functions
@@ -164,22 +157,40 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         break;
     }
   }
-  if ((action == GLFW_PRESS or action == GLFW_REPEAT) && alive){
+
+  if ((action == GLFW_PRESS || action == GLFW_REPEAT) && alive){
       float moveSpeed = 0.5;
-      switch( key ) {
-          case GLFW_KEY_D: // x down
-              myKartPosition.x -= moveSpeed;
-              break;
-          case GLFW_KEY_A: // x up
-              myKartPosition.x += moveSpeed;
-              break;
-          case GLFW_KEY_S: // z down
-              myKartPosition.z -= moveSpeed;
-              break;
-          case GLFW_KEY_W: // z up
-              myKartPosition.z += moveSpeed;
-              break;
+      if (key == GLFW_KEY_D){
+          myKart->right();
       }
+      if (key == GLFW_KEY_A){
+          myKart->left();
+      }
+      if (key == GLFW_KEY_W){
+          myKart->accelUp();
+      }
+      if (key == GLFW_KEY_S){
+          myKart->accelDown();
+      }
+//      switch( key ) {
+//          case GLFW_KEY_D: // x down
+////              myKartPosition.x -= moveSpeed;
+//              myKart->right();
+//              break;
+//          case GLFW_KEY_A: // x up
+////              myKartPosition.x += moveSpeed;
+//              myKart->left();
+//              break;
+//          case GLFW_KEY_S: // z down
+////              myKartPosition.z -= moveSpeed;
+//              myKart->accelDown();
+//              break;
+//          case GLFW_KEY_W: // z up
+////              myKartPosition.z += moveSpeed;
+//              myKart->accelUp();
+//              break;
+//      }
+      myKartPosition = myKart->location;
       convertSphericalToCartesian();
   }
 }
@@ -549,7 +560,7 @@ void setupTextures() {
 //
 ////////////////////////////////////////////////////////////////////////////////
 void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
-    myKart->location = myKartPosition;
+    myKartPosition = myKart->location;
 
     // Skybox
     // stores our model matrix

@@ -13,6 +13,7 @@ public:
     MyKart(glm::vec3 startingLocation):location(startingLocation){
         setupShader();
         setupBuffers();
+        theta = (float) M_PI;
     }
 
     // Functions
@@ -21,9 +22,17 @@ public:
     void updatePosition();
     void renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoint);
 
+    void left();
+    void right();
+    void accelUp();
+    void accelDown();
+    void rotate(float rotate);
+
+
     // Public variables
     glm::vec3 location;
-    glm::vec3 direction = glm::vec3(1,0,0);
+    glm::vec3 direction = glm::vec3(0,0,-1);
+    float speed = 1.0;
 
 private:
     // World Info
@@ -32,8 +41,10 @@ private:
     float animateTime = 0;
     glm::vec3 lightPos = glm::vec3(10,10,10);
     bool animateDir;
-    // Enemy Info
 
+    float theta;
+
+    float rotationTick = 0.1;
     bool alive = true;
 
 
