@@ -63,7 +63,7 @@ void MyKart::setupBuffers() {
 
 void MyKart::updatePosition() {
     if (checkFall()){
-        cout << "YOU'RE FALLING!!!";
+//        cout << "YOU'RE FALLING!!!";
     }
     location = location + direction*speed;
 
