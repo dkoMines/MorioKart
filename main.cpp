@@ -52,7 +52,7 @@
 //
 // Global Parameters
 int windowWidth, windowHeight;
-string controlFileName = "ControlFile.txt";
+string controlFileName = "ControlFileXL.txt";
 bool controlDown = false;
 bool kartCamera = true;
 bool leftMouseDown = false;
@@ -75,6 +75,8 @@ GLint mvp_uniform_location, skybox_vpos, skybox_tloc;
 
 glm::vec3 lightPos = {0.0,10.0,0.0};
 
+glm::vec3 camCenter;
+
 
 // Platform
 const GLfloat GROUND_SIZE = 3;
@@ -94,6 +96,7 @@ struct TextureShaderAttributeLocations {
 
 // + More our own platform variables THE ROAD
 vector<glm::vec3> platform_layout;
+vector<glm::vec4> platform_Nums;
 int platformNum;
 vector<char> roadChars = {'x','S','1','2','3','4','5','6','7','8','9'};
 vector<int> finishIndex;
@@ -645,6 +648,14 @@ int main( int argc, char *argv[] ) {
                     platform_layout.push_back(glm::vec3(x,0,z));
                     finishIndex.push_back(count);
                     count++;
+                    platform_Nums.push_back(glm::vec4(x,0,z,0));
+                }
+                if (c=='1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9') {
+                    int num = (int)c - 48;
+                    platform_Nums.push_back(glm::vec4(x,0,z,num));
+                }
+                if (c=='C'){
+                    camCenter = glm::vec3(GROUND_SIZE*x, 0.0f,GROUND_SIZE*z);
                 }
             }
             z+=2;
@@ -665,7 +676,7 @@ int main( int argc, char *argv[] ) {
 	setupTextures();									// load all our textures into memory
 
     // Generate any models that start in the game here
-    myKart = new MyKart(myKartPosition, platform_layout, GROUND_SIZE);
+    myKart = new MyKart(myKartPosition, platform_layout, GROUND_SIZE, platform_Nums);
     penguin = new Penguin(penguinPosition);
 
 

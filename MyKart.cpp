@@ -29,55 +29,75 @@ void MyKart::setupBuffers() {
     this_model->loadModelFile( model_file_name );
     this_texture_uniform_handle = CSCI441::TextureUtils::loadAndRegisterTexture(text_file_name);
 
-    // Load Normals
-//    ifstream modelFile;
-//    modelFile.open(model_file_name);
-//    vector<glm::vec3> allNormals;
-//    while(!modelFile.eof()){
-//        string word;
-//        modelFile >> word;
-//        if (word=="vn"){
-//            glm::vec3 normal;
-//            float piece;
-//            modelFile >> piece;
-//            normal.x = piece;
-//            modelFile >> piece;
-//            normal.y = piece;
-//            modelFile >> piece;
-//            normal.z = piece;
-//            allNormals.push_back(normal);
-//        }
-//    }
-//    // Shift to an array
-//    glm::vec3 normalArray[allNormals.size()];
-//    for (int i=0;i<allNormals.size();i++){
-//        normalArray[i] = allNormals[i];
-//    }
-//    // Generate Normals VBO
-//    glGenBuffers( 1, &thisNormalVBOs);
-//    glBindBuffer( GL_ARRAY_BUFFER, thisNormalVBOs);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(normalArray),normalArray, GL_STATIC_DRAW);
-//    glEnableVertexAttribArray( this_norm_attrib_location );
-//    glVertexAttribPointer( this_norm_attrib_location, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 }
 
 void MyKart::updatePosition() {
-    if (checkFall()){
-        cout << "YOU'RE FALLING!!!";
+    if (checkFall(location)){
+        fallingCount ++;
+    } else if (alive){
+        location.y = normalY;
+        fallingCount = 0;
+        thetaLR = 0;
+    }
+    if (fallingCount > 10||!alive){
+        location.y -= 0.4;
+        alive = false;
+        thetaLR += 0.3;
     }
     location = location + direction*speed;
+
+    if (!alive && location.y < -20){
+        // Respawn
+        alive = true;
+        location = mylastPlatform;
+        direction = mylastDirection;
+        thetaLR = 0;
+        speed = 0;
+    }
+
+    int num = checkNum();
+    if (num>-1 && num < 10){
+        cout << num;
+        if (num == target){
+            target += 1;
+            if (target == 10){target=0;}
+        }
+        if (num<target-1 || (target==0&&num!=9||num!=0)){
+            modelScale = 0.02;
+        }
+    }
 
 
 
 }
-bool MyKart::checkFall(){
-    for (auto platform : platformLayout){
-        int xPlus = platform.x*groundSize + groundSize;
-        int xMinus = platform.x*groundSize - groundSize;
-        int zPlus = platform.z*groundSize + groundSize;
-        int zMinus = platform.z*groundSize - groundSize;
+
+int MyKart::checkNum(){
+
+    for (auto platform : numLayout){
+        float xPlus = platform.x*groundSize + groundSize;
+        float xMinus = platform.x*groundSize - groundSize;
+        float zPlus = platform.z*groundSize + groundSize;
+        float zMinus = platform.z*groundSize - groundSize;
 
         if (location.x < xPlus && location.x > xMinus && location.z < zPlus && location.z > zMinus){
+            return platform.a;
+        }
+
+    }
+    return -1;
+}
+
+bool MyKart::checkFall(glm::vec3 position){
+
+    for (auto platform : platformLayout){
+        float xPlus = platform.x*groundSize + groundSize;
+        float xMinus = platform.x*groundSize - groundSize;
+        float zPlus = platform.z*groundSize + groundSize;
+        float zMinus = platform.z*groundSize - groundSize;
+
+        if (location.x < xPlus && position.x > xMinus && position.z < zPlus && position.z > zMinus){
+            mylastPlatform = glm::vec3(platform.x*groundSize, normalY + 0.2, platform.z*groundSize);
+            mylastDirection = direction;
             return false;
         }
 
@@ -94,6 +114,13 @@ void MyKart::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoin
     // M_PI/2 = +x
     // 0 = +Z
     modelMtx = glm::rotate( modelMtx, (float)(theta), rotationAxis );
+
+    glm::vec3 rotationAxisFB = glm::cross(direction,rotationAxis);
+    modelMtx = glm::rotate( modelMtx, (float)(thetaLR), rotationAxisFB );
+
+//    modelMtx = glm::rotate( modelMtx, (float)(thetaLR), direction );
+
+
 
 
 
@@ -128,6 +155,7 @@ void MyKart::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoin
 }
 
 void MyKart::left() {
+    if (!alive){return;}
     if (speed == 0){return;}
     theta += rotationTick+sqrt(abs(speed)*100)/2500;
     glm::vec3 axis = glm::vec3(0,1,0);
@@ -137,6 +165,7 @@ void MyKart::left() {
     direction = glm::normalize(glm::vec3(direction_4.x,0,direction_4.z));
 }
 void MyKart::right() {
+    if (!alive){return;}
     if (speed == 0){return;}
     theta -= rotationTick+sqrt(abs(speed)*100)/2500;
     glm::vec3 axis = glm::vec3(0,1,0);
@@ -147,6 +176,7 @@ void MyKart::right() {
 }
 
 void MyKart::accelUp() {
+    if (!alive){return;}
     if (speed<0.5){
         speed += 0.03;
     }
@@ -154,6 +184,7 @@ void MyKart::accelUp() {
     if (speed > maxSpeed){speed = maxSpeed;}
 }
 void MyKart::accelDown() {
+    if (!alive){return;}
     if (speed > 0){
         speed -= 0.08;
     } else {
@@ -166,10 +197,12 @@ void MyKart::accelDown() {
 }
 
 void MyKart::noAccel() {
+    if (!alive){return;}
     if (speed > 0){
         speed -= 0.01;
     }
     else if (speed < 0){
         speed += 0.01;
     }
+    if (speed < 0.03 && speed > -0.03) {speed=0;}
 }
