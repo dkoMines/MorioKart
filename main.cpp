@@ -54,6 +54,7 @@
 int windowWidth, windowHeight;
 string controlFileName = "ControlFile.txt";
 bool controlDown = false;
+bool kartCamera = true;
 bool leftMouseDown = false;
 glm::vec2 mousePosition( -9999.0f, -9999.0f );
 
@@ -123,9 +124,17 @@ GLfloat randNumber( int max ) {
 //
 ////////////////////////////////////////////////////////////////////////////////
 void convertSphericalToCartesian() {
-	eyePoint.x = cameraAngles.z * sinf( cameraAngles.x ) * sinf( cameraAngles.y ) + myKartPosition.x;
-	eyePoint.y = cameraAngles.z * -cosf( cameraAngles.y ) + myKartPosition.y;
-	eyePoint.z = cameraAngles.z * -cosf( cameraAngles.x ) * sinf( cameraAngles.y )+ myKartPosition.z;
+    float kartY = 6.0;
+    if (kartCamera){
+        eyePoint.x =  myKartPosition.x - myKart->direction.x*10;
+        eyePoint.y = kartY + myKartPosition.y;
+        eyePoint.z =  myKartPosition.z - myKart->direction.z*10;
+    } else {
+        eyePoint.x = cameraAngles.z * sinf( cameraAngles.x ) * sinf( cameraAngles.y ) + myKartPosition.x;
+        eyePoint.y = cameraAngles.z * -cosf( cameraAngles.y ) + myKartPosition.y;
+        eyePoint.z = cameraAngles.z * -cosf( cameraAngles.x ) * sinf( cameraAngles.y )+ myKartPosition.z;
+    }
+
 }
 
 //******************************************************************************
@@ -159,6 +168,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
       case GLFW_KEY_ESCAPE:
       case GLFW_KEY_Q:
         glfwSetWindowShouldClose( window, GLFW_TRUE );
+        break;
+      case GLFW_KEY_P:
+          if (kartCamera){
+              kartCamera = false;
+          } else {
+              kartCamera = true;
+          }
+
         break;
     }
   }
@@ -377,7 +394,7 @@ void setupBuffersSky(){
     Vertex skyPoints[8];
     // SKYBOX BUFFERS
     // Sides for my cube
-    float scale = 200.0;
+    float scale = 500.0;
     float yLow = -1*scale;
     float yHigh = scale;
     float xLow = -1*scale;
@@ -698,7 +715,7 @@ int main( int argc, char *argv[] ) {
 		glm::mat4 projectionMatrix = glm::perspective( 45.0f, windowWidth / (float) windowHeight, 0.001f, 1000.0f );
 
 		// set up our look at matrix to position our camera
-		glm::mat4 viewMatrix = glm::lookAt( eyePoint,myKartPosition, upVector );
+		glm::mat4 viewMatrix = glm::lookAt( eyePoint,glm::vec3(myKartPosition.x,myKartPosition.y+2.0,myKartPosition.z), upVector );
 
 		// draw everything to the window
 		// pass our view and projection matrices as well as deltaTime between frames
