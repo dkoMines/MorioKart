@@ -51,7 +51,7 @@ private:
     float thetaLR = 0;
     float fallingCount = 0;
 
-    int maxSpeed = 1.5;
+    int maxSpeed = 1.3;
 
     // World Info
     float groundSize;

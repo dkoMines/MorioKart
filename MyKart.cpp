@@ -57,13 +57,18 @@ void MyKart::updatePosition() {
 
     int num = checkNum();
     if (num>-1 && num < 10){
-        cout << num;
         if (num == target){
+            modelScale = 0.07;
             target += 1;
             if (target == 10){target=0;}
         }
-        if (num<target-1 || (target==0&&num!=9||num!=0)){
-            modelScale = 0.02;
+        if (num-1 > target || num +1 < target ) {
+            if (target==0 && num ==9){}
+            else{
+                modelScale = 0.02;
+            }
+            target = num +1;
+            if (target == 10){target=0;}
         }
     }
 
@@ -177,10 +182,16 @@ void MyKart::right() {
 
 void MyKart::accelUp() {
     if (!alive){return;}
-    if (speed<0.5){
+    if (speed<0.2){
         speed += 0.03;
     }
-    speed *= 1.01;
+    if (speed<0.4){
+        speed += 0.003;
+    }
+    if (speed<0.7){
+        speed += 0.001;
+    }
+    speed *= 1.0001;
     if (speed > maxSpeed){speed = maxSpeed;}
 }
 void MyKart::accelDown() {
