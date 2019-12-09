@@ -1,6 +1,7 @@
 #pragma once
 #include "Model_Base.h"
-
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 class Penguin : public Model_Base{
 public:
     // Constructor
@@ -34,12 +35,14 @@ private:
     // Model / Buffers
     const char* model_file_name = "models/Penguin.obj";
     CSCI441::ModelLoader* this_model = NULL;
+	CSCI441::ShaderProgram* this_shader_program = NULL;
+
     GLuint thisNormalVBOs;
-    float modelScale = 0.1;
+    float modelScale = 1;
 
 
     // Shader Locations/ Handles
-    GLuint this_ShaderHandle = 0;
+   GLuint this_ShaderHandle = 0;
     GLint this_model_mvp = -1;
     GLint this_lightPosLoc = -1;
     GLint this_modelMtxLoc = -1;
@@ -47,9 +50,14 @@ private:
     GLint this_timeLoc = -1;
     GLuint this_change_uniform_location;
     GLint this_norm_attrib_location;
+    GLint this_texel_attrib_location;
+    GLint this_texture_uniform_location;
+    GLint this_texture_uniform_handle;
+    GLint this_viewMtxLoc;
     GLint this_vpos_model;
     GLint this_scale_loc;
-
+	GLint texHandle;
+	
     // Misc
     glm::mat4 modelMtx = glm::mat4(1.0f);
 

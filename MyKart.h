@@ -60,7 +60,7 @@ private:
 
     float heroSize;
     float animateTime = 0;
-    glm::vec3 lightPos = glm::vec3(10,10,10);
+    glm::vec3 lightPos = glm::vec3(0,15,0);
     bool animateDir;
 
 
@@ -87,6 +87,7 @@ private:
     GLint this_modelMtxLoc = -1;
     GLint this_camPosLoc = -1;
     GLint this_timeLoc = -1;
+	GLint this_color_attrib_location;
     GLuint this_change_uniform_location;
     GLint this_norm_attrib_location;
     GLint this_texel_attrib_location;
