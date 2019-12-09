@@ -156,7 +156,7 @@ void convertSphericalToCartesian() {
         eyePoint.z =  myKartPosition.z - myKart->direction.z*10;
     } else {
         eyePoint.x = cameraAngles.z * sinf( cameraAngles.x ) * sinf( cameraAngles.y ) + myKartPosition.x;
-        eyePoint.y = cameraAngles.z * -cosf( cameraAngles.y ) + myKartPosition.y;
+        eyePoint.y = cameraAngles.z * -cosf( cameraAngles.y ) ;
         eyePoint.z = cameraAngles.z * -cosf( cameraAngles.x ) * sinf( cameraAngles.y )+ myKartPosition.z;
     }
 
@@ -730,7 +730,7 @@ int main( int argc, char *argv[] ) {
                     count ++;
                 }
                 if (c == 'S'){ // Starting Position
-                    myKartPosition = glm::vec3(x*GROUND_SIZE, 1.0, z*GROUND_SIZE);
+                    myKartPosition = glm::vec3(x*GROUND_SIZE, 0.1f, z*GROUND_SIZE);
                 }
                 if (c=='O'){ // Finish Line
                     platform_layout.push_back(glm::vec3(x,0,z));

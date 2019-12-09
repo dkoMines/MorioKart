@@ -29,7 +29,7 @@ void main() {
     // Specular variable
     float specularStrength = 0.5;
 
-    // Specular requisite vectors
+    // Specular requisite vectorsmak
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
 
@@ -38,7 +38,7 @@ void main() {
     vec3 specular = specularStrength * spec * lightColor;
 
     // Result
-    vec3 result = (ambient + diffuse + specular);
-    fragColorOut = vec4(result, 1.0) * texture(textur, tex);
+    vec3 result = (ambient + diffuse+ specular);
+    fragColorOut = vec4(result * vec3(texture2D(textur, tex)) + specular, 1.0);
     //    fragColorOut = vec4(1.0, 1.0, 1.0, 1.0);
 }
