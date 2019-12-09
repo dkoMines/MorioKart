@@ -76,7 +76,7 @@ void Penguin::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoi
     glUniform1f(this_timeLoc, animateTime);
     glUniform3fv(this_change_uniform_location, 1, &location[0]);
     glUniform1f(this_scale_loc, modelScale);
-    this_model->draw( this_vpos_model );
+    this_model->draw( this_vpos_model, this_norm_attrib_location );
 
 //    if (animateTime > 100){
 //        animateDir = false;

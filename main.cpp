@@ -103,19 +103,10 @@ glm::vec3 myKartPosition = glm::vec3(0,1.5,0);
 bool alive = true;
 MyKart* myKart;
 
-
-<<<<<<< HEAD
 //Penguin
 glm::vec3 penguinPosition = glm::vec3(10, 1.5, 10);
 Penguin* penguin;
 
-
-
-
-
-
-=======
->>>>>>> 53019ff8d06c3fc4a3d898e2dc7965a0947d24eb
 //******************************************************************************
 //
 // Helper Functions
@@ -171,10 +162,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         break;
     }
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> 53019ff8d06c3fc4a3d898e2dc7965a0947d24eb
   if ((action == GLFW_PRESS || action == GLFW_REPEAT) && alive){
       float moveSpeed = 0.5;
       if (key == GLFW_KEY_D){
@@ -577,12 +564,8 @@ void setupTextures() {
 //
 ////////////////////////////////////////////////////////////////////////////////
 void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
-<<<<<<< HEAD
-    myKart->location = myKartPosition;
     penguin->location = penguinPosition;
-=======
     myKartPosition = myKart->location;
->>>>>>> 53019ff8d06c3fc4a3d898e2dc7965a0947d24eb
 
     // Skybox
     // stores our model matrix
