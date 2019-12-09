@@ -37,7 +37,7 @@ public:
 
 private:
 
-    int maxSpeed = 3.0;
+    int maxSpeed = 1.5;
 
     // World Info
     float groundSize;
@@ -49,7 +49,7 @@ private:
     float theta;
 
 
-    float rotationTick = 0.1;
+    float rotationTick = 0.03;
     bool alive = true;
 
 
@@ -59,7 +59,7 @@ private:
     CSCI441::ModelLoader* this_model = NULL;
     CSCI441::ShaderProgram* this_shader_program = NULL;
     GLuint thisNormalVBOs;
-    float modelScale = 0.1;
+    float modelScale = 0.07;
 
 
     // Shader Locations/ Handles

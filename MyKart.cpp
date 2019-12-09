@@ -112,7 +112,8 @@ void MyKart::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoin
 }
 
 void MyKart::left() {
-    theta += rotationTick*speed;
+    if (speed == 0){return;}
+    theta += rotationTick+abs(sqrt(speed)/10);
     glm::vec3 axis = glm::vec3(0,1,0);
     glm::mat4 matrix = glm::rotate(glm::mat4(1.0f),theta,axis);
     glm::vec4 direction_4 = matrix*glm::vec4(0,0,1,1);
@@ -120,7 +121,8 @@ void MyKart::left() {
     direction = glm::normalize(glm::vec3(direction_4.x,0,direction_4.z));
 }
 void MyKart::right() {
-    theta -= rotationTick*speed;
+    if (speed == 0){return;}
+    theta -= rotationTick+abs(sqrt(speed)/10);
     glm::vec3 axis = glm::vec3(0,1,0);
     glm::mat4 matrix = glm::rotate(glm::mat4(1.0f),theta,axis);
     glm::vec4 direction_4 = matrix*glm::vec4(0,0,1,1);
@@ -137,10 +139,12 @@ void MyKart::accelUp() {
 }
 void MyKart::accelDown() {
     if (speed > 0){
-        speed -= 0.1;
-    } else if (speed < 0){
+        speed -= 0.08;
+    } else {
+
         speed -= 0.03;
-        if (speed < -maxSpeed/2){speed = -maxSpeed/2;}
+        if (speed < -1.0){speed = -1.0}
+
 
     }
 }
