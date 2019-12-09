@@ -10,7 +10,7 @@
 class MyKart : public Model_Base{
 public:
     // Constructor
-    MyKart(glm::vec3 startingLocation):location(startingLocation){
+    MyKart(glm::vec3 startingLocation, vector<glm::vec3> platformLayout, int platformSize):location(startingLocation),groundSize(platformSize),platformLayout(platformLayout){
         setupShader();
         setupBuffers();
         theta = (float) M_PI;
@@ -29,6 +29,9 @@ public:
     void noAccel();
     void rotate(float rotate);
 
+    bool checkFall();
+
+
 
     // Public variables
     glm::vec3 location;
@@ -41,10 +44,12 @@ private:
 
     // World Info
     float groundSize;
+    vector<glm::vec3> platformLayout;
     float heroSize;
     float animateTime = 0;
     glm::vec3 lightPos = glm::vec3(10,10,10);
     bool animateDir;
+
 
     float theta;
 

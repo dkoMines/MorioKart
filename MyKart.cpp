@@ -62,14 +62,30 @@ void MyKart::setupBuffers() {
 }
 
 void MyKart::updatePosition() {
+    if (checkFall()){
+        cout << "YOU'RE FALLING!!!";
+    }
     location = location + direction*speed;
 
 
 
 }
+bool MyKart::checkFall(){
+    for (auto platform : platformLayout){
+        int xPlus = platform.x*groundSize + groundSize;
+        int xMinus = platform.x*groundSize - groundSize;
+        int zPlus = platform.z*groundSize + groundSize;
+        int zMinus = platform.z*groundSize - groundSize;
+
+        if (location.x < xPlus && location.x > xMinus && location.z < zPlus && location.z > zMinus){
+            return false;
+        }
+
+    }
+    return true;
+}
 
 void MyKart::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoint) {
-
 
     glm::mat4 oldModelMtx = modelMtx;
 
@@ -113,7 +129,7 @@ void MyKart::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoin
 
 void MyKart::left() {
     if (speed == 0){return;}
-    theta += rotationTick+abs(sqrt(speed)/10);
+    theta += rotationTick+sqrt(abs(speed)*100)/2500;
     glm::vec3 axis = glm::vec3(0,1,0);
     glm::mat4 matrix = glm::rotate(glm::mat4(1.0f),theta,axis);
     glm::vec4 direction_4 = matrix*glm::vec4(0,0,1,1);
@@ -122,7 +138,7 @@ void MyKart::left() {
 }
 void MyKart::right() {
     if (speed == 0){return;}
-    theta -= rotationTick+abs(sqrt(speed)/10);
+    theta -= rotationTick+sqrt(abs(speed)*100)/2500;
     glm::vec3 axis = glm::vec3(0,1,0);
     glm::mat4 matrix = glm::rotate(glm::mat4(1.0f),theta,axis);
     glm::vec4 direction_4 = matrix*glm::vec4(0,0,1,1);
@@ -143,7 +159,7 @@ void MyKart::accelDown() {
     } else {
 
         speed -= 0.03;
-        if (speed < -1.0){speed = -1.0}
+        if (speed < -0.5){speed = -0.5;}
 
 
     }

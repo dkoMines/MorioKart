@@ -95,7 +95,7 @@ struct TextureShaderAttributeLocations {
 // + More our own platform variables THE ROAD
 vector<glm::vec3> platform_layout;
 int platformNum;
-vector<char> roadChars = {'x','S'};
+vector<char> roadChars = {'x','S','1','2','3','4','5','6','7','8','9'};
 vector<int> finishIndex;
 
 
@@ -665,7 +665,7 @@ int main( int argc, char *argv[] ) {
 	setupTextures();									// load all our textures into memory
 
     // Generate any models that start in the game here
-    myKart = new MyKart(myKartPosition);
+    myKart = new MyKart(myKartPosition, platform_layout, GROUND_SIZE);
     penguin = new Penguin(penguinPosition);
 
 
