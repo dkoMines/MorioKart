@@ -115,7 +115,7 @@ endif
 all: $(TARGET)
 
 clean:
-	rm -f $(OBJECTS) $(TARGET)
+	rm -f $(OBJECTS) $(TARGET) *.o
 	
 build: $(OBJECTS)
 

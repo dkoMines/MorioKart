@@ -15,7 +15,7 @@ void MyKart::setupShader() {
     this_model_mvp = this_shader_program->getUniformLocation("mvpMatrix");
     this_modelMtxLoc = this_shader_program->getUniformLocation("modelMatrix");
     this_viewMtxLoc = this_shader_program->getUniformLocation("viewMatrix");
-    this_lightPosLoc = this_shader_program->getUniformLocation("lightPos");
+    this_lightPosLoc = this_shader_program->getUniformLocation("LightPos");
     this_camPosLoc = this_shader_program->getUniformLocation("viewPos");
     this_timeLoc = this_shader_program->getUniformLocation("time");
     this_change_uniform_location = this_shader_program->getUniformLocation("changePos");
