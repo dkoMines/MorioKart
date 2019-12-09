@@ -39,7 +39,7 @@ private:
     float groundSize;
     float heroSize;
     float animateTime = 0;
-    glm::vec3 lightPos = glm::vec3(0,10,0);
+    glm::vec3 lightPos = glm::vec3(10,10,10);
     bool animateDir;
 
     float theta;
@@ -69,6 +69,7 @@ private:
     GLint this_texel_attrib_location;
     GLint this_texture_uniform_location;
     GLint this_texture_uniform_handle;
+    GLint this_viewMtxLoc;
     GLint this_vpos_model;
     GLint this_scale_loc;
 
