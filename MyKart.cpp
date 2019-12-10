@@ -131,7 +131,9 @@ int MyKart::checkNum(){
 }
 
 bool MyKart::checkFall(glm::vec3 position){
-
+    if (location.y<0){
+        return true;
+    }
     for (auto platform : platformLayout){
         float xPlus = platform.x*groundSize + groundSize;
         float xMinus = platform.x*groundSize - groundSize;
