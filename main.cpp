@@ -661,7 +661,7 @@ void setupTextures() {
 //
 ////////////////////////////////////////////////////////////////////////////////
 void renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
-    penguin->location = penguinPosition;
+    penguinPosition = penguin->location;
     myKartPosition = myKart->location;
 	if(glm::distance(penguinPosition, myKartPosition) < 200){
 		penguin->walking = true;
@@ -690,7 +690,7 @@ void renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
         count++;
     }
 
-	penguin->renderModel(viewMtx, projMtx, eyePoint);
+	penguin->renderModel(viewMtx, projMtx, eyePoint, myKartPosition);
     myKart->renderModel(viewMtx,projMtx,eyePoint);
     
 
@@ -764,7 +764,7 @@ int main(int argc, char *argv[]) {
                 }
                 if (c == 'S'){ // Starting Position
                     myKartPosition = glm::vec3(x*GROUND_SIZE, 0.1f, z*GROUND_SIZE);
-					penguinPosition = glm::vec3(x*GROUND_SIZE, 0.1f, z*GROUND_SIZE);
+					penguinPosition = glm::vec3(x*GROUND_SIZE + 100, 3.6f, z*GROUND_SIZE + 100);
                 }
                 if (c == 'O') { // Finish Line
                     platform_layout.push_back(glm::vec3(x, 0, z));

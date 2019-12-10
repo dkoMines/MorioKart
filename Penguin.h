@@ -2,10 +2,11 @@
 #include "Model_Base.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-class Penguin : public Model_Base{
+class Penguin{
 public:
     // Constructor
-    Penguin(glm::vec3 startingLocation):location(startingLocation){
+    Penguin(glm::vec3 startingLocation){
+		location = startingLocation;
         setupShader();
         setupBuffers();
     }
@@ -14,25 +15,18 @@ public:
     // Functions
     void setupShader();
     void setupBuffers();
-    void updatePosition();
-    void renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoint);
+    void updatePosition(glm::vec3 heroPosition);
+    void renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoint, glm::vec3 playerPosition);
 
     // Public variables
     glm::vec3 location;
-    glm::vec3 direction = glm::vec3(1,0,0);
+    glm::vec3 direction = glm::vec3(1.0f,0.0f,0.0f);
 
 private:
-    // World Info
-    float groundSize;
-    float heroSize;
-    float animateTimeIdle = 0;
+    int animateTimeIdle = 0;
 	int animateTimeWalk = 0;
-    glm::vec3 lightPos = glm::vec3(0,10,0);
-    bool animateDir;
-    // Enemy Info
-    bool updateFrame = true;
-    bool alive = true;
-
+    glm::vec3 lightPos = glm::vec3(0.0f,10.0f,0.0f);
+	bool updateFrame = true;
 
     // Model / Buffers
     const char* model_file_name = "models/riggedPenguin.obj";
@@ -42,6 +36,7 @@ private:
 
     GLuint thisNormalVBOs;
     float modelScale = 1;
+	float angle = 0;
 
 
     // Shader Locations/ Handles
