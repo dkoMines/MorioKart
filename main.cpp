@@ -46,6 +46,7 @@
 #include "Penguin.cpp"
 #include "GoLight.h"
 #include "GoLight.cpp"
+#include "Light.h"
 
 
 #include <chrono>
@@ -83,12 +84,19 @@ GLint mvp_uniform_location, skybox_vpos, skybox_tloc;
 
 glm::vec3 lightPos = {0.0, 10.0, 0.0};
 
+
 glm::vec3 camCenter;
+
+string secretCode = "12244333";
+string codeEntered = "";
 
 // Light
 GoLight* goLight = NULL;
 time_t current_time = time(NULL);
 time_t light_time, start_time, last_lap;
+Light* startingLight;
+Light* generalLight;
+bool showLight = true;
 
 // Platform
 const GLfloat GROUND_SIZE = 3;
@@ -148,7 +156,7 @@ int laps = 0;
 
 //Penguin
 glm::vec3 penguinPosition = glm::vec3(10, 1.5, 10);
-Penguin *penguin;
+//Penguin *penguin;
 
 //******************************************************************************
 //
@@ -216,6 +224,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
                 } else {
                     kartCamera = true;
                 }
+                break;
             case GLFW_KEY_ENTER:
                 if (light_time > current_time) {
                     light_time = current_time;
@@ -223,6 +232,18 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
                 }
 
 
+                break;
+            case GLFW_KEY_UP:
+                codeEntered = "1";
+                break;
+            case GLFW_KEY_RIGHT:
+                codeEntered = codeEntered +  "4";
+                break;
+            case GLFW_KEY_DOWN:
+                codeEntered = codeEntered +  "3";
+                break;
+            case GLFW_KEY_LEFT:
+                codeEntered = codeEntered +  "2";
                 break;
         }
     }
@@ -676,13 +697,19 @@ void setupTextures() {
 //
 ////////////////////////////////////////////////////////////////////////////////
 void renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
-    penguin->location = penguinPosition;
+
+    if (codeEntered == secretCode){
+        myKart->superSain = true;
+    } else {
+        myKart->superSain = false;
+    }
+//    penguin->location = penguinPosition;
     myKartPosition = myKart->location;
-	if(glm::distance(penguinPosition, myKartPosition) < 200){
-		penguin->walking = true;
-	} else {
-		penguin->walking = false;
-	}
+//	if(glm::distance(penguinPosition, myKartPosition) < 200){
+//		penguin->walking = true;
+//	} else {
+//		penguin->walking = false;
+//	}
 
     // Skybox
     // stores our model matrix
@@ -705,14 +732,19 @@ void renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
         count++;
     }
 
-    if ( myKart->checkCollide(penguinPosition,1.0) ) {
-        // Penguin does thing
-        // Ink
+    myKart->setLights(generalLight, startingLight);
+
+//    if ( myKart->checkCollide(penguinPosition,1.0) ) {
+//        // Penguin does thing
+//        // Ink
+//    }
+
+//	penguin->renderModel(viewMtx, projMtx, eyePoint);
+    myKart->renderModel(viewMtx,projMtx,eyePoint);
+    if (showLight){
+        goLight->renderModel(viewMtx, projMtx, eyePoint);
     }
 
-	penguin->renderModel(viewMtx, projMtx, eyePoint);
-    myKart->renderModel(viewMtx,projMtx,eyePoint);
-    goLight->renderModel(viewMtx, projMtx, eyePoint);
 
 
 
@@ -766,6 +798,8 @@ int main(int argc, char *argv[]) {
     ifstream control(controlFileName);
     started = false;
     light_time = 99999999999;
+    generalLight = new Light(glm::vec3(0,15,0),glm::vec4(1.0,1.0,1.0,1.0));
+
     if (!control){
         cout << "Control File Does not exist";
         exit(1);
@@ -827,10 +861,11 @@ int main(int argc, char *argv[]) {
 
     // Generate any models that start in the game here
     myKart = new MyKart(myKartPosition, platform_layout, GROUND_SIZE, platform_Nums);
-    penguin = new Penguin(penguinPosition);
+//    penguin = new Penguin(penguinPosition);
     goLight = new GoLight(goLightLocation);
+    startingLight = new Light(goLightLocation,glm::vec4(1.0,1.0,1.0,1.0));
 
-
+    myKart->setLights(generalLight, startingLight);
     // needed to connect our 3D Object Library to our shader
     CSCI441::setVertexAttributeLocations(vpos_attrib_location);
 
@@ -862,13 +897,20 @@ int main(int argc, char *argv[]) {
             if (!wsKeys){
                 myKart->noAccel();
             }
+            if (current_time - light_time >= 8.0 ){
+                startingLight->color = glm::vec4(0.4,0.4,0.4,1.0);
+                showLight = false;
+            }
         }
         else{
             goLight->time = 3.0;
+            startingLight->color = glm::vec4(1.0,0.0,0.0,1.0);
             if (current_time - light_time >= 2.0 ){
+                startingLight->color = glm::vec4(1.0,1.0,0.0,1.0);
                 goLight->time = 2.0;
             }
             if (current_time - light_time >= 4.0 ){
+                startingLight->color = glm::vec4(0.0,1.0,0.0,1.0);
                 goLight->time = 1.0;
                 started = true;
                 start_time = current_time;

@@ -13,6 +13,7 @@ class Light {
 public:
     Light(glm::vec3 location, glm::vec4 color):location(location), color(color){}
 
+    bool on = true;
     glm::vec3 location;
     glm::vec4 color;
     // Maybe direction also, not sure what we want for this.
