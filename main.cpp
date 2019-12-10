@@ -707,8 +707,6 @@ void renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
 
 	penguin->renderModel(viewMtx, projMtx, eyePoint);
     myKart->renderModel(viewMtx,projMtx,eyePoint);
-    
-
     goLight->renderModel(viewMtx, projMtx, eyePoint);
 
 
@@ -788,6 +786,7 @@ int main(int argc, char *argv[]) {
                     finishIndex.push_back(count);
                     count++;
                     platform_Nums.push_back(glm::vec4(x, 0, z, 0));
+                    goLightLocation = glm::vec3(GROUND_SIZE * x, 0.0f, GROUND_SIZE * z);
                 }
                 if (c == '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9') {
                     int num = (int) c - 48;
