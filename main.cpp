@@ -40,13 +40,12 @@
 #include <math.h>       /* sin */
 #include <algorithm>
 
-#include "Enemy.h"
-#include "Enemy.cpp"
-
 #include "MyKart.h"
 #include "MyKart.cpp"
 #include "Penguin.h"
 #include "Penguin.cpp"
+#include "GoLight.h"
+#include "GoLight.cpp"
 
 
 //*************************************************************************************
@@ -81,6 +80,8 @@ glm::vec3 lightPos = {0.0, 10.0, 0.0};
 
 glm::vec3 camCenter;
 
+// Light
+GoLight* goLight = NULL;
 
 // Platform
 const GLfloat GROUND_SIZE = 3;
@@ -161,9 +162,9 @@ void convertSphericalToCartesian() {
         eyePoint.y = kartY + myKartPosition.y;
         eyePoint.z = myKartPosition.z - myKart->direction.z * 10;
     } else {
-        eyePoint.x = cameraAngles.z * sinf(cameraAngles.x) * sinf(cameraAngles.y) + myKartPosition.x;
-        eyePoint.y = cameraAngles.z * -cosf(cameraAngles.y);
-        eyePoint.z = cameraAngles.z * -cosf(cameraAngles.x) * sinf(cameraAngles.y) + myKartPosition.z;
+        eyePoint.x = cameraAngles.z * sinf( cameraAngles.x ) * sinf( cameraAngles.y ) + myKartPosition.x;
+        eyePoint.y = cameraAngles.z * -cosf( cameraAngles.y ) + myKartPosition.y;
+        eyePoint.z = cameraAngles.z * -cosf( cameraAngles.x ) * sinf( cameraAngles.y )+ myKartPosition.z;
     }
 
 }
@@ -405,15 +406,16 @@ void setupShaders() {
 
 
     // Ground //
-    floorShaderProgram = new CSCI441::ShaderProgram("shaders/textureShader.v.glsl", "shaders/textureShader.f.glsl");
-    textureShaderUniforms.modelMtx = floorShaderProgram->getUniformLocation("modelMtx");
-    textureShaderUniforms.viewProjectionMtx = floorShaderProgram->getUniformLocation("viewProjectionMtx");
-    textureShaderUniforms.tex = floorShaderProgram->getUniformLocation("tex");
-    textureShaderUniforms.color = floorShaderProgram->getUniformLocation("color");
 
-    textureShaderAttributes.vPos = floorShaderProgram->getAttributeLocation("vPos");
-    textureShaderAttributes.vTextureCoord = floorShaderProgram->getAttributeLocation("vTextureCoord");
-    // Objective
+    floorShaderProgram = new CSCI441::ShaderProgram( "shaders/textureShader.v.glsl", "shaders/textureShader.f.glsl" );
+    textureShaderUniforms.modelMtx          = floorShaderProgram->getUniformLocation( "modelMtx" );
+    textureShaderUniforms.viewProjectionMtx = floorShaderProgram->getUniformLocation( "viewProjectionMtx" );
+    textureShaderUniforms.tex               = floorShaderProgram->getUniformLocation( "tex" );
+    textureShaderUniforms.color             = floorShaderProgram->getUniformLocation( "color" );
+
+    textureShaderAttributes.vPos            = floorShaderProgram->getAttributeLocation( "vPos" );
+    textureShaderAttributes.vTextureCoord   = floorShaderProgram->getAttributeLocation( "vTextureCoord" );
+
 
 
     // Mini map
@@ -455,6 +457,8 @@ void setupBuffersMini() {
 }
 
 void setupFramebuffer() {
+
+
     // TODO #1 - Setup everything with the framebuffer
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -492,7 +496,9 @@ void setupFramebuffer() {
 //      Create our VAOs & VBOs. Send vertex data to the GPU for future rendering
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 void setupBuffersSky() {
+
     Vertex skyPoints[8];
     // SKYBOX BUFFERS
     // Sides for my cube
@@ -682,6 +688,10 @@ void renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
     myKart->renderModel(viewMtx, projMtx, eyePoint);
     penguin->renderModel(viewMtx, projMtx, eyePoint);
 
+    goLight->renderModel(viewMtx, projMtx, eyePoint);
+
+
+
 
 
 
@@ -711,7 +721,6 @@ void renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
     }
 
 
-
     // Fix camera
     glm::vec3 camDir = glm::normalize(eyePoint - lookAtPoint);
 }
@@ -729,6 +738,7 @@ int main(int argc, char *argv[]) {
     srand(time(0));                                    // seed our RNG
 
     // Read in our control file
+    glm::vec3 goLightLocation;
     ifstream control(controlFileName);
     if (!control) {
         cout << "Control File Does not exist";
@@ -758,6 +768,7 @@ int main(int argc, char *argv[]) {
                 if (c == '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9') {
                     int num = (int) c - 48;
                     platform_Nums.push_back(glm::vec4(x, 0, z, num));
+
                 }
                 if (c == 'C') {
                     camCenter = glm::vec3(GROUND_SIZE * x, 0.0f, GROUND_SIZE * z);
@@ -786,6 +797,8 @@ int main(int argc, char *argv[]) {
     // Generate any models that start in the game here
     myKart = new MyKart(myKartPosition, platform_layout, GROUND_SIZE, platform_Nums);
     penguin = new Penguin(penguinPosition);
+    goLight = new GoLight(goLightLocation);
+
 
     // needed to connect our 3D Object Library to our shader
     CSCI441::setVertexAttributeLocations(vpos_attrib_location);
@@ -913,8 +926,15 @@ int main(int argc, char *argv[]) {
         glfwPollEvents();                // check for any events and signal to redraw screen
     }
 
+<<<<<<< HEAD
     glfwDestroyWindow(window);// clean up and close our window
     glfwTerminate();                        // shut down GLFW to clean up our context
 
     return EXIT_SUCCESS;
+=======
+  glfwDestroyWindow( window );// clean up and close our window
+	glfwTerminate();						// shut down GLFW to clean up our context
+    cout << glGetError() << endl;
+	return EXIT_SUCCESS;
+>>>>>>> 940d69416d8d29d09808330a143b9c6d998a449c
 }

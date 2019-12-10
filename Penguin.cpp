@@ -24,9 +24,22 @@ void Penguin::setupShader() {
 
 void Penguin::setupBuffers() {
     // Sets up our model
-    this_model = new CSCI441::ModelLoader();
-    this_model->enableAutoGenerateNormals();
-    this_model->loadModelFile( model_file_name );
+        for(int i = 1; i < 10; i++){
+        CSCI441::ModelLoader* thisModel = new CSCI441::ModelLoader();
+        thisModel->enableAutoGenerateNormals();
+        string num = "models/penguinIdle/penguinIdle_00000" + std::to_string(i) + ".obj";
+        thisModel->loadModelFile(num.c_str());
+        models.push_back(thisModel);
+        cout << i << endl;
+    }
+    for(int i = 10; i < 25; i++){
+        CSCI441::ModelLoader* thisModel = new CSCI441::ModelLoader();
+        thisModel->enableAutoGenerateNormals();
+        string num = "models/penguinIdle/penguinIdle_0000" + std::to_string(i) + ".obj";
+        thisModel->loadModelFile(num.c_str());
+        models.push_back(thisModel);
+        cout << i << endl;
+    }
 	texHandle = CSCI441::TextureUtils::loadAndRegisterTexture("textures/Penguin_grp.png");
 }
 
@@ -51,7 +64,12 @@ void Penguin::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoi
     glUniform3fv(this_change_uniform_location, 1, &location[0]);
     glUniform1f(this_scale_loc, modelScale);
 	glBindTexture(GL_TEXTURE_2D, texHandle);
-    this_model->draw( this_vpos_model, this_norm_attrib_location, this_texel_attrib_location );
+    models.at(animateTime)->draw( this_vpos_model, this_norm_attrib_location, this_texel_attrib_location );
+    
+    animateTime++;
+    if(animateTime >= 24){
+        animateTime = 0;
+    }
 
 //    if (animateTime > 100){
 //        animateDir = false;
