@@ -58,7 +58,6 @@ void Penguin::updatePosition(glm::vec3 heroPosition) {
     
     location += direction*0.1f;
 
-
 }
 
 void Penguin::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoint, glm::vec3 playerPosition) {

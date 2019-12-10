@@ -704,7 +704,7 @@ void renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
     } else {
         myKart->superSain = false;
     }
-    penguin->location = penguinPosition;
+    penguinPosition = penguin->location;
     myKartPosition = myKart->location;
 	if(glm::distance(penguinPosition, myKartPosition) < 200){
 		penguin->walking = true;
