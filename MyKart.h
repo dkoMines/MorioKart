@@ -15,6 +15,7 @@ public:
         setupBuffers();
         theta = (float) M_PI;
         alive = true;
+        heroSize = 1.0;
     }
 
     // Functions
@@ -32,6 +33,8 @@ public:
 
     bool checkFall(glm::vec3);
     int checkNum();
+
+    bool checkCollide(glm::vec3 pengLocation, float size);
 
 
 
@@ -65,6 +68,7 @@ private:
     glm::vec3 lightPos = glm::vec3(0,15,0);
     bool animateDir;
 
+    float collideTheta = 0;
 
     float theta;
 

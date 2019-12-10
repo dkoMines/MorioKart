@@ -134,7 +134,7 @@ GLuint texturedQuadVAO;
 vector<glm::vec3> platform_layout;
 vector<glm::vec4> platform_Nums;
 int platformNum;
-vector<char> roadChars = {'x', 'S', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+vector<char> roadChars = {'x', 'S', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'P'};
 vector<int> finishIndex;
 
 
@@ -705,6 +705,11 @@ void renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
         count++;
     }
 
+    if ( myKart->checkCollide(penguinPosition,1.0) ) {
+        // Penguin does thing
+        // Ink
+    }
+
 	penguin->renderModel(viewMtx, projMtx, eyePoint);
     myKart->renderModel(viewMtx,projMtx,eyePoint);
     goLight->renderModel(viewMtx, projMtx, eyePoint);
@@ -795,6 +800,9 @@ int main(int argc, char *argv[]) {
                 }
                 if (c == 'C') {
                     camCenter = glm::vec3(GROUND_SIZE * x, 0.0f, GROUND_SIZE * z);
+                }
+                if (c == 'P') {
+                    penguinPosition = glm::vec3(GROUND_SIZE * x, 0.0f, GROUND_SIZE * z);
                 }
             }
             z += 2;

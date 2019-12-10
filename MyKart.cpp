@@ -31,6 +31,18 @@ void MyKart::setupBuffers() {
 
 }
 
+bool MyKart::checkCollide(glm::vec3 pengLocation, float penguinSize) {
+    if (glm::distance(location,pengLocation)< heroSize + penguinSize){
+        speed = 0;
+        if ( collideTheta == 0 ){
+            collideTheta += 0.02;
+        }
+
+        return true;
+    }
+    return false;
+}
+
 void MyKart::updatePosition() {
     if (checkFall(location)){
         fallingCount ++;
@@ -129,6 +141,17 @@ void MyKart::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoin
     // M_PI/2 = +x
     // 0 = +Z
     modelMtx = glm::rotate( modelMtx, (float)(theta), rotationAxis );
+
+    if (collideTheta!=0){
+        if (speed > 0.2){speed = 0.2;}
+        if (collideTheta > M_PI*4){
+            collideTheta = 0;
+        }
+        collideTheta += rotationTick*2;
+        modelMtx = glm::rotate( modelMtx, (float)(collideTheta), rotationAxis );
+    }
+
+
 
     glm::vec3 rotationAxisFB = glm::cross(direction,rotationAxis);
     modelMtx = glm::rotate( modelMtx, (float)(thetaLR), rotationAxisFB );
