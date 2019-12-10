@@ -160,7 +160,7 @@ void convertSphericalToCartesian() {
         eyePoint.z =  myKartPosition.z - myKart->direction.z*10;
     } else {
         eyePoint.x = cameraAngles.z * sinf( cameraAngles.x ) * sinf( cameraAngles.y ) + myKartPosition.x;
-        eyePoint.y = cameraAngles.z * -cosf( cameraAngles.y ) ;
+        eyePoint.y = cameraAngles.z * -cosf( cameraAngles.y ) + myKartPosition.y;
         eyePoint.z = cameraAngles.z * -cosf( cameraAngles.x ) * sinf( cameraAngles.y )+ myKartPosition.z;
     }
 
@@ -917,6 +917,6 @@ int main( int argc, char *argv[] ) {
 
   glfwDestroyWindow( window );// clean up and close our window
 	glfwTerminate();						// shut down GLFW to clean up our context
-
+    cout << glGetError() << endl;
 	return EXIT_SUCCESS;
 }

@@ -8,6 +8,7 @@ public:
     Penguin(glm::vec3 startingLocation):location(startingLocation){
         setupShader();
         setupBuffers();
+        animateTime = 0;
     }
 
     // Functions
@@ -33,8 +34,8 @@ private:
 
 
     // Model / Buffers
-    const char* model_file_name = "models/Penguin.obj";
-    CSCI441::ModelLoader* this_model = NULL;
+    const char* model_file_name = "models/riggedPenguin.obj";
+    std::vector<CSCI441::ModelLoader*> models;
 	CSCI441::ShaderProgram* this_shader_program = NULL;
 
     GLuint thisNormalVBOs;
