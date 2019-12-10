@@ -156,7 +156,7 @@ int laps = 0;
 
 //Penguin
 glm::vec3 penguinPosition = glm::vec3(10, 1.5, 10);
-//Penguin *penguin;
+Penguin *penguin;
 
 //******************************************************************************
 //
@@ -704,13 +704,13 @@ void renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
     } else {
         myKart->superSain = false;
     }
-//    penguin->location = penguinPosition;
+    penguin->location = penguinPosition;
     myKartPosition = myKart->location;
-//	if(glm::distance(penguinPosition, myKartPosition) < 200){
-//		penguin->walking = true;
-//	} else {
-//		penguin->walking = false;
-//	}
+	if(glm::distance(penguinPosition, myKartPosition) < 200){
+		penguin->walking = true;
+	} else {
+		penguin->walking = false;
+	}
 
     // Skybox
     // stores our model matrix
@@ -735,12 +735,12 @@ void renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
 
     myKart->setLights(generalLight, startingLight);
 
-//    if ( myKart->checkCollide(penguinPosition,1.0) ) {
-//        // Penguin does thing
-//        // Ink
-//    }
+    if ( myKart->checkCollide(penguinPosition,1.0) ) {
+        // Penguin does thing
+        // Ink
+    }
 
-//	penguin->renderModel(viewMtx, projMtx, eyePoint);
+	penguin->renderModel(viewMtx, projMtx, eyePoint, myKartPosition);
     myKart->renderModel(viewMtx,projMtx,eyePoint);
     if (showLight){
         goLight->renderModel(viewMtx, projMtx, eyePoint);
@@ -819,7 +819,6 @@ int main(int argc, char *argv[]) {
                 }
                 if (c == 'S'){ // Starting Position
                     myKartPosition = glm::vec3(x*GROUND_SIZE, 0.1f, z*GROUND_SIZE);
-					penguinPosition = glm::vec3(x*GROUND_SIZE + 100, 3.6f, z*GROUND_SIZE + 100);
                 }
                 if (c == 'O') { // Finish Line
                     platform_layout.push_back(glm::vec3(x, 0, z));
@@ -837,7 +836,7 @@ int main(int argc, char *argv[]) {
                     camCenter = glm::vec3(GROUND_SIZE * x, 0.0f, GROUND_SIZE * z);
                 }
                 if (c == 'P') {
-                    penguinPosition = glm::vec3(GROUND_SIZE * x, 0.0f, GROUND_SIZE * z);
+                    penguinPosition = glm::vec3(GROUND_SIZE * x, 3.6f, GROUND_SIZE * z);
                 }
             }
             z += 2;
@@ -862,7 +861,7 @@ int main(int argc, char *argv[]) {
 
     // Generate any models that start in the game here
     myKart = new MyKart(myKartPosition, platform_layout, GROUND_SIZE, platform_Nums);
-//    penguin = new Penguin(penguinPosition);
+    penguin = new Penguin(penguinPosition);
     goLight = new GoLight(goLightLocation);
     startingLight = new Light(goLightLocation,glm::vec4(1.0,1.0,1.0,1.0));
 

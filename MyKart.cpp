@@ -47,9 +47,10 @@ void MyKart::setLights(Light *l1, Light *l2) {
 }
 bool MyKart::checkCollide(glm::vec3 pengLocation, float penguinSize) {
     if (glm::distance(location,pengLocation)< heroSize + penguinSize){
-        speed = 0;
+
         if ( collideTheta == 0 ){
             collideTheta += 0.02;
+            speed = 0.1;
         }
 
         return true;
@@ -158,11 +159,12 @@ void MyKart::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoin
 
     if (collideTheta!=0){
         if (speed > 0.2){speed = 0.2;}
+
+        collideTheta += rotationTick*2;
+        modelMtx = glm::rotate( modelMtx, (float)(collideTheta), rotationAxis );
         if (collideTheta > M_PI*4){
             collideTheta = 0;
         }
-        collideTheta += rotationTick*2;
-        modelMtx = glm::rotate( modelMtx, (float)(collideTheta), rotationAxis );
     }
 
 
