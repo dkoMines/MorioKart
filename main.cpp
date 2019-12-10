@@ -710,7 +710,7 @@ void renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
         // Ink
     }
 
-	penguin->renderModel(viewMtx, projMtx, eyePoint);
+	penguin->renderModel(viewMtx, projMtx, eyePoint, myKartPosition);
     myKart->renderModel(viewMtx,projMtx,eyePoint);
     goLight->renderModel(viewMtx, projMtx, eyePoint);
 
