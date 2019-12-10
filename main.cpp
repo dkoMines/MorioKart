@@ -710,7 +710,7 @@ void renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
     } else {
         myKart->superSain = false;
     }
-    penguin->location = penguinPosition;
+    penguinPosition = penguin->location;
     myKartPosition = myKart->location;
 	if(glm::distance(penguinPosition, myKartPosition) < 200){
 		penguin->walking = true;
@@ -962,7 +962,7 @@ int main(int argc, char *argv[]) {
 
         // set the projection matrix based on the window size
         // ortho box
-        projectionMatrix = glm::ortho(-250.0f, 250.0f, -250.0f, 250.0f, 0.1f, 1000.0f);
+        projectionMatrix = glm::ortho(-250.0f, 250.0f, -250.0f, 250.0f, 0.1f, 2000.0f);
 
         // set up our look at matrix to position our camera
         viewMatrix= glm::lookAt(glm::vec3(camCenter.x, 50, camCenter.z),

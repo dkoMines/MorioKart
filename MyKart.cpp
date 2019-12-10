@@ -46,7 +46,8 @@ void MyKart::setLights(Light *l1, Light *l2) {
 
 }
 bool MyKart::checkCollide(glm::vec3 pengLocation, float penguinSize) {
-    if (glm::distance(location,pengLocation)< heroSize + penguinSize){
+
+    if (glm::distance(glm::vec2(location.x,location.z),glm::vec2(pengLocation.x,pengLocation.z))< heroSize + penguinSize){
 
         if ( collideTheta == 0 ){
             collideTheta += 0.02;
@@ -130,7 +131,9 @@ int MyKart::checkNum(){
 }
 
 bool MyKart::checkFall(glm::vec3 position){
-
+    if (location.y<0){
+        return true;
+    }
     for (auto platform : platformLayout){
         float xPlus = platform.x*groundSize + groundSize;
         float xMinus = platform.x*groundSize - groundSize;
