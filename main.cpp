@@ -40,13 +40,12 @@
 #include <math.h>       /* sin */
 #include <algorithm>
 
-#include "Enemy.h"
-#include "Enemy.cpp"
-
 #include "MyKart.h"
 #include "MyKart.cpp"
 #include "Penguin.h"
 #include "Penguin.cpp"
+#include "GoLight.h"
+#include "GoLight.cpp"
 
 
 //*************************************************************************************
@@ -79,6 +78,8 @@ glm::vec3 lightPos = {0.0,10.0,0.0};
 
 glm::vec3 camCenter;
 
+// Light
+GoLight* goLight = NULL;
 
 // Platform
 const GLfloat GROUND_SIZE = 3;
@@ -409,7 +410,6 @@ void setupShaders() {
 
     textureShaderAttributes.vPos            = floorShaderProgram->getAttributeLocation( "vPos" );
     textureShaderAttributes.vTextureCoord   = floorShaderProgram->getAttributeLocation( "vTextureCoord" );
-    // Objective
 
 
     // Mini map
@@ -452,6 +452,8 @@ void setupBuffersMini(){
 }
 
 void setupFramebuffer() {
+
+
     // TODO #1 - Setup everything with the framebuffer
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -483,6 +485,7 @@ void setupFramebuffer() {
 //
 ////////////////////////////////////////////////////////////////////////////////
 void setupBuffersSky(){
+
     Vertex skyPoints[8];
     // SKYBOX BUFFERS
     // Sides for my cube
@@ -667,6 +670,10 @@ void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
     myKart->renderModel(viewMtx,projMtx,eyePoint);
     penguin->renderModel(viewMtx, projMtx, eyePoint);
 
+    goLight->renderModel(viewMtx, projMtx, eyePoint);
+
+
+
 
 
 
@@ -696,7 +703,6 @@ void renderScene( glm::mat4 viewMtx, glm::mat4 projMtx ) {
     }
 
 
-
     // Fix camera
     glm::vec3 camDir = glm::normalize(eyePoint - lookAtPoint);
 }
@@ -714,6 +720,7 @@ int main( int argc, char *argv[] ) {
 	srand( time(0) );									// seed our RNG
 
     // Read in our control file
+    glm::vec3 goLightLocation;
     ifstream control(controlFileName);
     if (!control){
         cout << "Control File Does not exist";
@@ -740,10 +747,11 @@ int main( int argc, char *argv[] ) {
                     finishIndex.push_back(count);
                     count++;
                     platform_Nums.push_back(glm::vec4(x,0,z,0));
+                    goLightLocation = glm::vec3(GROUND_SIZE*x, 0.0f,GROUND_SIZE*z);
                 }
                 if (c=='1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9') {
                     int num = (int)c - 48;
-                    platform_Nums.push_back(glm::vec4(x,0,z,num));
+                    platform_Nums.push_back(glm::vec4(x,10,z,num));
                 }
                 if (c=='C'){
                     camCenter = glm::vec3(GROUND_SIZE*x, 0.0f,GROUND_SIZE*z);
@@ -772,6 +780,8 @@ int main( int argc, char *argv[] ) {
     // Generate any models that start in the game here
     myKart = new MyKart(myKartPosition, platform_layout, GROUND_SIZE, platform_Nums);
     penguin = new Penguin(penguinPosition);
+    goLight = new GoLight(goLightLocation);
+
 
 //    GLint framebufferWidth, framebufferHeight;
 //    glfwGetFramebufferSize( window, &framebufferWidth, &framebufferHeight );

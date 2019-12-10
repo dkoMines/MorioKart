@@ -11,10 +11,10 @@
 
 class Light {
 public:
-    Light(){}
+    Light(glm::vec3 location, glm::vec4 color):location(location), color(color){}
 
     glm::vec3 location;
-    glm::vec3 color;
+    glm::vec4 color;
     // Maybe direction also, not sure what we want for this.
 };
 
