@@ -15,6 +15,7 @@ public:
         setupBuffers();
         theta = (float) M_PI;
         alive = true;
+        heroSize = 1.0;
     }
 
     // Functions
@@ -28,9 +29,12 @@ public:
     void accelUp();
     void accelDown();
     void noAccel();
+    bool checkLap();
 
     bool checkFall(glm::vec3);
     int checkNum();
+
+    bool checkCollide(glm::vec3 pengLocation, float size);
 
 
 
@@ -40,8 +44,9 @@ public:
     float speed = 0.0;
 
 private:
+    bool didLap = false;
 
-    int target = 0;
+    int target = 1;
 
     float normalY = 0.8;
 
@@ -63,6 +68,7 @@ private:
     glm::vec3 lightPos = glm::vec3(0,15,0);
     bool animateDir;
 
+    float collideTheta = 0;
 
     float theta;
 

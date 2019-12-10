@@ -48,6 +48,10 @@
 #include "GoLight.cpp"
 
 
+#include <chrono>
+#include <time.h>
+
+
 //*************************************************************************************
 //
 // Global Parameters
@@ -55,6 +59,7 @@ int windowWidth, windowHeight;
 string controlFileName = "ControlFileXL.txt";
 bool controlDown = false;
 bool kartCamera = true;
+
 bool leftMouseDown = false;
 glm::vec2 mousePosition(-9999.0f, -9999.0f);
 
@@ -82,6 +87,8 @@ glm::vec3 camCenter;
 
 // Light
 GoLight* goLight = NULL;
+time_t current_time = time(NULL);
+time_t light_time, start_time, last_lap;
 
 // Platform
 const GLfloat GROUND_SIZE = 3;
@@ -127,14 +134,17 @@ GLuint texturedQuadVAO;
 vector<glm::vec3> platform_layout;
 vector<glm::vec4> platform_Nums;
 int platformNum;
-vector<char> roadChars = {'x', 'S', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+vector<char> roadChars = {'x', 'S', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'P'};
 vector<int> finishIndex;
 
 
 // MyKart
 glm::vec3 myKartPosition = glm::vec3(0, 1.5, 0);
 bool alive = true;
-MyKart *myKart;
+bool started = false;
+MyKart* myKart;
+int laps = 0;
+
 
 //Penguin
 glm::vec3 penguinPosition = glm::vec3(10, 1.5, 10);
@@ -191,10 +201,9 @@ static void error_callback(int error, const char *description) {
 //	Responds to key presses and key releases
 //
 ////////////////////////////////////////////////////////////////////////////////
-static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if ((key == GLFW_KEY_ESCAPE || key == 'Q') && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
-
     if (action == GLFW_PRESS) {
         switch (key) {
             case GLFW_KEY_ESCAPE:
@@ -207,6 +216,12 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
                 } else {
                     kartCamera = true;
                 }
+            case GLFW_KEY_ENTER:
+                if (light_time > current_time) {
+                    light_time = current_time;
+                    goLight->time = 3.0;
+                }
+
 
                 break;
         }
@@ -690,10 +705,13 @@ void renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
         count++;
     }
 
-	penguin->renderModel(viewMtx, projMtx, eyePoint, myKartPosition);
-    myKart->renderModel(viewMtx,projMtx,eyePoint);
-    
+    if ( myKart->checkCollide(penguinPosition,1.0) ) {
+        // Penguin does thing
+        // Ink
+    }
 
+	penguin->renderModel(viewMtx, projMtx, eyePoint);
+    myKart->renderModel(viewMtx,projMtx,eyePoint);
     goLight->renderModel(viewMtx, projMtx, eyePoint);
 
 
@@ -746,7 +764,9 @@ int main(int argc, char *argv[]) {
     // Read in our control file
     glm::vec3 goLightLocation;
     ifstream control(controlFileName);
-    if (!control) {
+    started = false;
+    light_time = 99999999999;
+    if (!control){
         cout << "Control File Does not exist";
         exit(1);
     } else {
@@ -771,6 +791,7 @@ int main(int argc, char *argv[]) {
                     finishIndex.push_back(count);
                     count++;
                     platform_Nums.push_back(glm::vec4(x, 0, z, 0));
+                    goLightLocation = glm::vec3(GROUND_SIZE * x, 0.0f, GROUND_SIZE * z);
                 }
                 if (c == '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9') {
                     int num = (int) c - 48;
@@ -779,6 +800,9 @@ int main(int argc, char *argv[]) {
                 }
                 if (c == 'C') {
                     camCenter = glm::vec3(GROUND_SIZE * x, 0.0f, GROUND_SIZE * z);
+                }
+                if (c == 'P') {
+                    penguinPosition = glm::vec3(GROUND_SIZE * x, 0.0f, GROUND_SIZE * z);
                 }
             }
             z += 2;
@@ -812,30 +836,58 @@ int main(int argc, char *argv[]) {
 
     convertSphericalToCartesian();        // set up our camera position
 
-    //  This is our draw loop - all rendering is done here.  We use a loop to keep the window open
-    //	until the user decides to close the window and quit the program.  Without a loop, the
-    //	window will display once and then the program exits.
-    while (!glfwWindowShouldClose(window)) {    // check if the window was instructed to be closed
+  //  This is our draw loop - all rendering is done here.  We use a loop to keep the window open
+	//	until the user decides to close the window and quit the program.  Without a loop, the
+	//	window will display once and then the program exits.
+	while( !glfwWindowShouldClose(window) ) {	// check if the window was instructed to be closed
+	    current_time = time(NULL);
 //    glDrawBuffer( GL_BACK );				// work with our back frame buffer
 //		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );	// clear the current color contents and depth buffer in the window
-        bool wsKeys = false;
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-            myKart->accelUp();
-            wsKeys = true;
+        if (started){
+            bool wsKeys = false;
+            if (glfwGetKey(window,GLFW_KEY_W)==GLFW_PRESS){
+                myKart->accelUp();
+                wsKeys = true;
+            }
+            if (glfwGetKey(window,GLFW_KEY_S)==GLFW_PRESS){
+                myKart->accelDown();
+                wsKeys = true;
+            }
+            if (glfwGetKey(window,GLFW_KEY_A)==GLFW_PRESS){
+                myKart->left();
+            }
+            if (glfwGetKey(window,GLFW_KEY_D)==GLFW_PRESS){
+                myKart->right();
+            }
+            if (!wsKeys){
+                myKart->noAccel();
+            }
         }
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-            myKart->accelDown();
-            wsKeys = true;
+        else{
+            goLight->time = 3.0;
+            if (current_time - light_time >= 2.0 ){
+                goLight->time = 2.0;
+            }
+            if (current_time - light_time >= 4.0 ){
+                goLight->time = 1.0;
+                started = true;
+                start_time = current_time;
+                last_lap = current_time;
+            }
         }
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-            myKart->left();
+        if (myKart->checkLap()){
+            laps ++;
+            cout << "================================"<<endl;
+            cout << "LAP: " << laps << " COMPLETE!"<< endl;
+            cout << "Lap time: "<< current_time - last_lap << endl;
+            cout << "Total time: "<< current_time - start_time << endl;
+            cout << "================================"<<endl;
+            last_lap = current_time;
         }
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-            myKart->right();
-        }
-        if (!wsKeys) {
-            myKart->noAccel();
-        }
+//        light_time = current_time;
+//        goLight->time = 3.0;
+
+
         myKartPosition = myKart->location;
         convertSphericalToCartesian();
         // Get the size of our framebuffer.  Ideally this should be the same dimensions as our window, but

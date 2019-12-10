@@ -42,7 +42,7 @@ void GoLight::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoi
 //    glUniformMatrix4fv(light_model_mvp, 1, GL_FALSE, &mvpMtx[0][0]);
     glUniformMatrix4fv(light_modelMtxLoc, 1, GL_FALSE, &modelMtx[0][0]);
     glUniformMatrix4fv(light_viewMtxLoc, 1, GL_FALSE, &vp[0][0]);
-    glUniform1f(light_timeLoc, 1.0);
+    glUniform1f(light_timeLoc, time);
 
     light_model->draw( light_vpos_model);
 
