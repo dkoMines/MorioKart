@@ -16,7 +16,6 @@ void Penguin::setupShader() {
     this_viewMtxLoc = this_shader_program->getUniformLocation("viewMatrix");
     this_lightPosLoc = this_shader_program->getUniformLocation("LightPos");
     this_camPosLoc = this_shader_program->getUniformLocation("viewPos");
-    this_timeLoc = this_shader_program->getUniformLocation("time");
     this_change_uniform_location = this_shader_program->getUniformLocation("changePos");
     this_scale_loc = this_shader_program->getUniformLocation("scale");
 
@@ -24,22 +23,30 @@ void Penguin::setupShader() {
 
 void Penguin::setupBuffers() {
     // Sets up our model
-        for(int i = 1; i < 10; i++){
+    for(int i = 1; i < 10; i++){
         CSCI441::ModelLoader* thisModel = new CSCI441::ModelLoader();
         thisModel->enableAutoGenerateNormals();
         string num = "models/penguinIdle/penguinIdle_00000" + std::to_string(i) + ".obj";
         thisModel->loadModelFile(num.c_str());
-        models.push_back(thisModel);
-        cout << i << endl;
+        idleModels.push_back(thisModel);
     }
+	
     for(int i = 10; i < 25; i++){
         CSCI441::ModelLoader* thisModel = new CSCI441::ModelLoader();
         thisModel->enableAutoGenerateNormals();
         string num = "models/penguinIdle/penguinIdle_0000" + std::to_string(i) + ".obj";
         thisModel->loadModelFile(num.c_str());
-        models.push_back(thisModel);
-        cout << i << endl;
+        idleModels.push_back(thisModel);
     }
+	
+	for(int i = 1; i < 17; i++){
+		CSCI441::ModelLoader* thisModel = new CSCI441::ModelLoader();
+        thisModel->enableAutoGenerateNormals();
+        string num = "models/penguinWalk/penguinWalk_00000" + std::to_string(i) + ".obj";
+        thisModel->loadModelFile(num.c_str());
+        walkModels.push_back(thisModel);
+	}
+	
 	texHandle = CSCI441::TextureUtils::loadAndRegisterTexture("textures/Penguin_grp.png");
 }
 
@@ -60,23 +67,30 @@ void Penguin::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoi
     glUniformMatrix4fv(this_modelMtxLoc, 1, GL_FALSE, &modelMtx[0][0]);
     glUniform3fv(this_lightPosLoc, 1, &lightPos[0]);
     glUniform3fv(this_camPosLoc, 1, &eyePoint[0]);
-    glUniform1f(this_timeLoc, animateTime);
     glUniform3fv(this_change_uniform_location, 1, &location[0]);
     glUniform1f(this_scale_loc, modelScale);
 	glBindTexture(GL_TEXTURE_2D, texHandle);
-    models.at(animateTime)->draw( this_vpos_model, this_norm_attrib_location, this_texel_attrib_location );
-    
-    animateTime++;
-    if(animateTime >= 24){
-        animateTime = 0;
-    }
 
-//    if (animateTime > 100){
-//        animateDir = false;
-//    } else if (animateTime < 50){
-//        animateDir = true;
-//    }
-//    if (animateDir){
-//        animateTime ++;
-//    } else {animateTime--;}
+
+    if(updateFrame && !walking){
+		cout << "idle" << endl;
+		idleModels.at(animateTimeIdle)->draw( this_vpos_model, this_norm_attrib_location, this_texel_attrib_location );
+
+		updateFrame = false;
+		animateTimeWalk = 0;
+		animateTimeIdle++;
+    } else if(updateFrame && walking){
+		walkModels.at(animateTimeWalk)->draw( this_vpos_model, this_norm_attrib_location, this_texel_attrib_location );
+        animateTimeWalk++;
+        updateFrame = false;
+		animateTimeIdle = 0;
+	}else {
+        updateFrame = true;
+    }
+    if(animateTimeIdle >= 24){
+        animateTimeIdle = 0;
+    }
+	if(animateTimeWalk >= 16){
+		animateTimeWalk = 0;
+	}
 }

@@ -8,8 +8,8 @@ public:
     Penguin(glm::vec3 startingLocation):location(startingLocation){
         setupShader();
         setupBuffers();
-        animateTime = 0;
     }
+	bool walking = false;
 
     // Functions
     void setupShader();
@@ -25,17 +25,19 @@ private:
     // World Info
     float groundSize;
     float heroSize;
-    float animateTime = 0;
+    float animateTimeIdle = 0;
+	int animateTimeWalk = 0;
     glm::vec3 lightPos = glm::vec3(0,10,0);
     bool animateDir;
     // Enemy Info
-
+    bool updateFrame = true;
     bool alive = true;
 
 
     // Model / Buffers
     const char* model_file_name = "models/riggedPenguin.obj";
-    std::vector<CSCI441::ModelLoader*> models;
+    std::vector<CSCI441::ModelLoader*> walkModels;
+	std::vector<CSCI441::ModelLoader*> idleModels;
 	CSCI441::ShaderProgram* this_shader_program = NULL;
 
     GLuint thisNormalVBOs;
