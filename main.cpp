@@ -124,6 +124,8 @@ CSCI441::ShaderProgram *miniShader = NULL;
 struct MiniShaderUniformLocs {
     GLint projectionMtx;
     GLint fbo;
+    GLint isMap;
+    GLint hitPenguin;
 } miniShaderUniforms;
 struct PostShaderAttributeLocs {
     GLint vPos;
@@ -134,6 +136,8 @@ struct VertexTextured {
     float x, y, z;
     float s, t;
 };
+
+int hitPenguin;
 
 GLuint texturedQuadVAO;
 
@@ -458,6 +462,8 @@ void setupShaders() {
     miniShader = new CSCI441::ShaderProgram("shaders/grayscale.v.glsl", "shaders/grayscale.f.glsl");
     miniShaderUniforms.projectionMtx = miniShader->getUniformLocation("projectionMtx");
     miniShaderUniforms.fbo = miniShader->getUniformLocation("fbo");
+    miniShaderUniforms.isMap = miniShader->getUniformLocation("isMap");
+    miniShaderUniforms.hitPenguin = miniShader->getUniformLocation("hitPenguin");
     miniShaderAttributes.vPos = miniShader->getAttributeLocation("vPos");
     miniShaderAttributes.vTexCoord = miniShader->getAttributeLocation("vTexCoord");
 }
@@ -738,6 +744,9 @@ void renderScene(glm::mat4 viewMtx, glm::mat4 projMtx) {
     if ( myKart->checkCollide(penguinPosition,1.0) ) {
         // Penguin does thing
         // Ink
+        hitPenguin = 1;
+    }else{
+        hitPenguin = 0;
     }
 
 	penguin->renderModel(viewMtx, projMtx, eyePoint, myKartPosition);
@@ -998,6 +1007,8 @@ int main(int argc, char *argv[]) {
 
         ortho_p= glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f);
         glUniformMatrix4fv(miniShaderUniforms.projectionMtx, 1, GL_FALSE, &ortho_p[0][0]);
+        glUniform1i(miniShaderUniforms.hitPenguin, hitPenguin);
+        glUniform1i(miniShaderUniforms.isMap, 1);
         glActiveTexture(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, framebufferTextureHandle);
         glBindVertexArray(texturedQuadVAO);
@@ -1008,6 +1019,8 @@ int main(int argc, char *argv[]) {
 
         ortho_p= glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f);
         glUniformMatrix4fv(miniShaderUniforms.projectionMtx, 1, GL_FALSE, &ortho_p[0][0]);
+        glUniform1i(miniShaderUniforms.hitPenguin, hitPenguin);
+        glUniform1i(miniShaderUniforms.isMap, 0);
         glActiveTexture(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, screenTextureHandle);
         glBindVertexArray(texturedQuadVAO);

@@ -30,7 +30,7 @@ void Penguin::setupBuffers() {
         thisModel->loadModelFile(num.c_str());
         idleModels.push_back(thisModel);
     }
-	
+
     for(int i = 10; i < 25; i++){
         CSCI441::ModelLoader* thisModel = new CSCI441::ModelLoader();
         thisModel->enableAutoGenerateNormals();
@@ -38,7 +38,7 @@ void Penguin::setupBuffers() {
         thisModel->loadModelFile(num.c_str());
         idleModels.push_back(thisModel);
     }
-	
+
 	for(int i = 1; i < 17; i++){
 		CSCI441::ModelLoader* thisModel = new CSCI441::ModelLoader();
         thisModel->enableAutoGenerateNormals();
@@ -46,7 +46,7 @@ void Penguin::setupBuffers() {
         thisModel->loadModelFile(num.c_str());
         walkModels.push_back(thisModel);
 	}
-	
+
 	texHandle = CSCI441::TextureUtils::loadAndRegisterTexture("textures/Penguin_grp.png");
 }
 
