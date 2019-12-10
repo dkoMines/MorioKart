@@ -46,7 +46,8 @@ void MyKart::setLights(Light *l1, Light *l2) {
 
 }
 bool MyKart::checkCollide(glm::vec3 pengLocation, float penguinSize) {
-    if (glm::distance(location,pengLocation)< heroSize + penguinSize){
+
+    if (glm::distance(glm::vec2(location.x,location.z),glm::vec2(pengLocation.x,pengLocation.z))< heroSize + penguinSize){
 
         if ( collideTheta == 0 ){
             collideTheta += 0.02;
