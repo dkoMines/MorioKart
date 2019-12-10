@@ -26,7 +26,7 @@ void main() {
         theColor = vec3(1.0, 0.0, 0.0);
     }
     if (time == 2.0){
-        theColor = vec3(0.0, 1.0, 1.0);
+        theColor = vec3(1.0, 1.0, 0.0);
     }
     if (time == 1.0){
         theColor = vec3(0.0, 1.0, 0.0);

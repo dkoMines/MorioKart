@@ -58,6 +58,9 @@ void MyKart::updatePosition() {
     int num = checkNum();
     if (num>-1 && num < 10){
         if (num == target){
+            if (target == 0){// Lap Complete
+                didLap = true;
+            }
             modelScale = 0.07;
             target += 1;
             if (target == 10){target=0;}
@@ -74,6 +77,13 @@ void MyKart::updatePosition() {
 
 
 
+}
+bool MyKart::checkLap() {
+    if (didLap){
+        didLap = false;
+        return true;
+    }
+    return false;
 }
 
 int MyKart::checkNum(){

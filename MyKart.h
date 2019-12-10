@@ -28,6 +28,7 @@ public:
     void accelUp();
     void accelDown();
     void noAccel();
+    bool checkLap();
 
     bool checkFall(glm::vec3);
     int checkNum();
@@ -40,8 +41,9 @@ public:
     float speed = 0.0;
 
 private:
+    bool didLap = false;
 
-    int target = 0;
+    int target = 1;
 
     float normalY = 0.8;
 
