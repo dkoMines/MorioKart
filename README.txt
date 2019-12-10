@@ -14,8 +14,17 @@ Shaders:
     Lots of shader stuff.
     Light up when you use easter egg, go small when you go the wrong way too much
     See shaders for more, multipass rendering is used for the map (worked on ink, might not be done by the time we turn this in :) )
-
 There is an easter egg
+
+
+=======
+Usage:
+Drive around using the WASD keys and switch camera with the P key. 
+After pushing P, click and drag to move the camera
+******EASTER EGG******
+Push up, left, left, right, right, down, down, down on the arrow keys
+This gives you super speed.
+**********************
 
 Usage:
 
@@ -35,10 +44,10 @@ S = car start
 
 Responsibilities:
 Dylan - Built base map layout and file input, built start of the Kart being shown and most of the kart functionings and such. Lights on kart
-Trevor -
-Kyle -
-
+Trevor Kerr: Did the penguin animation, movement, shader. Fixed lighting in several places. Helped with car movement.
+Kyle Moran: Added the minimap and made pushed the screen to a frame buffer. Textured the kart. 
 How Long:
+40 Hours
 
 Labs: 10
 
