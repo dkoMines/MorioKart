@@ -26,6 +26,7 @@
 #include <vector>
 #include <queue>
 #include <math.h>       /* sin */
+#include "Light.h"
 
 
 #ifndef A7_MODEL_BASE_H

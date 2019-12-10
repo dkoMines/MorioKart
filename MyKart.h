@@ -29,6 +29,7 @@ public:
     void accelUp();
     void accelDown();
     void noAccel();
+    void setLights(Light* l1, Light* l2);
     bool checkLap();
 
     bool checkFall(glm::vec3);
@@ -43,13 +44,17 @@ public:
     glm::vec3 direction = glm::vec3(0,0,-1);
     float speed = 0.0;
 
+    bool superSain = false;
+
 private:
+
+
+    Light* light1;
+    Light* light2;
+
     bool didLap = false;
-
     int target = 1;
-
     float normalY = 0.8;
-
     glm::vec3 mylastPlatform;
     glm::vec3 mylastDirection;
 
@@ -89,7 +94,6 @@ private:
     // Shader Locations/ Handles
     GLuint this_ShaderHandle = 0;
     GLint this_model_mvp = -1;
-    GLint this_lightPosLoc = -1;
     GLint this_modelMtxLoc = -1;
     GLint this_camPosLoc = -1;
     GLint this_timeLoc = -1;
@@ -102,6 +106,11 @@ private:
     GLint this_viewMtxLoc;
     GLint this_vpos_model;
     GLint this_scale_loc;
+
+    GLint this_light_1_loc;
+    GLint this_light_1_color;
+    GLint this_light_2_color;
+    GLint this_light_2_loc;
 
     // Misc
     glm::mat4 modelMtx = glm::mat4(1.0f);

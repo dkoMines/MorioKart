@@ -14,12 +14,18 @@ void MyKart::setupShader() {
     this_texture_uniform_location = this_shader_program->getUniformLocation("textur");
     this_model_mvp = this_shader_program->getUniformLocation("mvpMatrix");
     this_modelMtxLoc = this_shader_program->getUniformLocation("modelMatrix");
-    //this_viewMtxLoc = this_shader_program->getUniformLocation("viewMatrix");
-    this_lightPosLoc = this_shader_program->getUniformLocation("LightPos");
+    this_viewMtxLoc = this_shader_program->getUniformLocation("viewMatrix");
     this_camPosLoc = this_shader_program->getUniformLocation("viewPos");
     this_timeLoc = this_shader_program->getUniformLocation("time");
     this_change_uniform_location = this_shader_program->getUniformLocation("changePos");
     this_scale_loc = this_shader_program->getUniformLocation("scale");
+
+    this_light_1_loc = this_shader_program->getUniformLocation("light_1_pos");
+    this_light_1_color = this_shader_program->getUniformLocation("light_1_color");
+    this_light_2_loc = this_shader_program->getUniformLocation("light_2_pos");
+    this_light_2_color = this_shader_program->getUniformLocation("light_2_color");
+
+
 }
 
 void MyKart::setupBuffers() {
@@ -30,12 +36,22 @@ void MyKart::setupBuffers() {
     this_texture_uniform_handle = CSCI441::TextureUtils::loadAndRegisterTexture(text_file_name);
 
 }
+void MyKart::setLights(Light *l1, Light *l2) {
+    light1 = l1;
+    light2 = l2;
+    if (superSain){
+        glm::vec3 newLightLoc = location-direction;
+        light2 = new Light(glm::vec3(newLightLoc.x,newLightLoc.y+4,newLightLoc.z),glm::vec4(1.0,1.0,0.0,1.0));
+    }
 
+}
 bool MyKart::checkCollide(glm::vec3 pengLocation, float penguinSize) {
-    if (glm::distance(location,pengLocation)< heroSize + penguinSize){
-        speed = 0;
+
+    if (glm::distance(glm::vec2(location.x,location.z),glm::vec2(pengLocation.x,pengLocation.z))< heroSize + penguinSize){
+
         if ( collideTheta == 0 ){
             collideTheta += 0.02;
+            speed = 0.1;
         }
 
         return true;
@@ -144,11 +160,12 @@ void MyKart::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoin
 
     if (collideTheta!=0){
         if (speed > 0.2){speed = 0.2;}
+
+        collideTheta += rotationTick*2;
+        modelMtx = glm::rotate( modelMtx, (float)(collideTheta), rotationAxis );
         if (collideTheta > M_PI*4){
             collideTheta = 0;
         }
-        collideTheta += rotationTick*2;
-        modelMtx = glm::rotate( modelMtx, (float)(collideTheta), rotationAxis );
     }
 
 
@@ -170,12 +187,18 @@ void MyKart::renderModel(glm::mat4 viewMtx, glm::mat4 projMtx, glm::vec3 eyePoin
 //    glUseProgram(this_ShaderHandle);
     glUniformMatrix4fv(this_model_mvp, 1, GL_FALSE, &mvpMtx[0][0]);
     glUniformMatrix4fv(this_modelMtxLoc, 1, GL_FALSE, &modelMtx[0][0]);
-    //glUniformMatrix4fv(this_viewMtxLoc, 1, GL_FALSE, &viewMtx[0][0]);
-    glUniform3fv(this_lightPosLoc, 1, &lightPos[0]);
+    glUniformMatrix4fv(this_viewMtxLoc, 1, GL_FALSE, &viewMtx[0][0]);
     glUniform3fv(this_camPosLoc, 1, &eyePoint[0]);
     glUniform1f(this_timeLoc, animateTime);
     glUniform3fv(this_change_uniform_location, 1, &zero[0]);
     glUniform1f(this_scale_loc, modelScale);
+
+    glUniform3fv(this_light_1_loc, 1, &light1->location[0]);
+    glUniform4fv(this_light_1_color, 1, &light1->color[0]);
+    glUniform3fv(this_light_2_loc, 1, &light2->location[0]);
+    glUniform4fv(this_light_2_color, 1, &light2->color[0]);
+
+
 //    glUniform1ui(this_texture_uniform_location, GL_TEXTURE0);
     glBindTexture( GL_TEXTURE_2D, this_texture_uniform_handle );
     this_model->draw( this_vpos_model, this_norm_attrib_location, this_texel_attrib_location);
@@ -225,7 +248,10 @@ void MyKart::accelUp() {
         speed += 0.001;
     }
     speed *= 1.0001;
-    if (speed > maxSpeed){speed = maxSpeed;}
+    if (superSain){
+        speed *= 1.01;
+    }
+    if (speed > maxSpeed && !superSain){speed = maxSpeed;}
 }
 void MyKart::accelDown() {
     if (!alive){return;}
